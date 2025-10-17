@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>삼성전자 종합 재무제표 대시보드</title>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			min-height: 100vh;
+			padding: 20px;
+		}
+
+		.container {
+			max-width: 1600px;
+			margin: 0 auto;
+			background: white;
+			border-radius: 20px;
+			padding: 40px;
+			box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+		}
+
+		header {
+			text-align: center;
+			margin-bottom: 30px;
+			border-bottom: 3px solid #667eea;
+			padding-bottom: 20px;
+		}
+
+		h1 {
+			color: #2c3e50;
+			font-size: 36px;
+			margin-bottom: 10px;
+		}
+
+		.subtitle {
+			color: #7f8c8d;
+			font-size: 16px;
+		}
+
+		.view-selector {
+			display: flex;
+			justify-content: center;
+			flex-wrap: wrap;
+			gap: 15px;
+			margin-bottom: 30px;
+		}
+
+		.view-btn {
+			padding: 12px 30px;
+			font-size: 14px;
+			font-weight: bold;
+			border: none;
+			border-radius: 50px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			background: #ecf0f1;
+			color: #2c3e50;
+		}
+
+		.view-btn.active {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			transform: scale(1.05);
+			box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+		}
+
+		.view-btn:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+		}
+
+		.view-content {
+			display: none;
+		}
+
+		.view-content.active {
+			display: block;
+			animation: fadeIn 0.5s ease;
+		}
+
+		@keyframes fadeIn {
+			from { opacity: 0; transform: translateY(20px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+
+		.chart-container {
+			position: relative;
+			height: 500px;
+			margin-bottom: 30px;
+			background: #f8f9fa;
+			padding: 20px;
+			border-radius: 15px;
+			box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+		}
+
+		.filter-container {
+			text-align: center;
+			margin-bottom: 20px;
+		}
+
+		.filter-container select {
+			padding: 10px 20px;
+			font-size: 14px;
+			border: 2px solid #667eea;
+			border-radius: 10px;
+			background: white;
+			cursor: pointer;
+		}
+
+		.balance-sheet-container {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 20px;
+			margin-bottom: 30px;
+		}
+
+		.bs-column {
+			background: #f8f9fa;
+			padding: 20px;
+			border-radius: 15px;
+			box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+		}
+
+		.bs-column h3 {
+			text-align: center;
+			margin-bottom: 20px;
+			font-size: 20px;
+			color: #2c3e50;
+		}
+
+		.bs-item {
+			padding: 15px;
+			margin-bottom: 10px;
+			background: white;
+			border-radius: 10px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			border-left: 5px solid transparent;
+		}
+
+		.bs-item:hover {
+			transform: translateX(5px);
+			box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+		}
+
+		.bs-item.asset { border-left-color: #3498db; }
+		.bs-item.liability { border-left-color: #e74c3c; }
+		.bs-item.equity { border-left-color: #2ecc71; }
+
+		.bs-item .label {
+			font-weight: bold;
+			color: #2c3e50;
+			margin-bottom: 5px;
+		}
+
+		.bs-item .amount {
+			font-size: 18px;
+			color: #667eea;
+			font-weight: bold;
+		}
+
+		.bs-item .tooltip {
+			display: none;
+			margin-top: 10px;
+			padding: 10px;
+			background: #ecf0f1;
+			border-radius: 5px;
+			font-size: 12px;
+			color: #7f8c8d;
+		}
+
+		.bs-item:hover .tooltip {
+			display: block;
+		}
+
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+			gap: 15px;
+			margin-top: 20px;
+		}
+
+		.stat-card {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			padding: 20px;
+			border-radius: 15px;
+			text-align: center;
+			box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+		}
+
+		.stat-card h3 {
+			font-size: 13px;
+			margin-bottom: 10px;
+			opacity: 0.9;
+		}
+
+		.stat-card .value {
+			font-size: 22px;
+			font-weight: bold;
+		}
+
+		.footer {
+			text-align: center;
+			margin-top: 30px;
+			padding-top: 20px;
+			border-top: 2px solid #ecf0f1;
+			color: #7f8c8d;
+			font-size: 14px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<header>
+			<h1>📊 삼성전자 종합 재무제표 대시보드</h1>
+			<p class="subtitle">Samsung Electronics Comprehensive Financial Dashboard</p>
+		</header>
+
+		<div class="view-selector">
+			<button class="view-btn active" onclick="switchView('trend')">📈 10년 매출/영업이익</button>
+			<button class="view-btn" onclick="switchView('cashflowTrend')">💧 10년 현금흐름 추이</button>
+			<button class="view-btn" onclick="switchView('waterfall')">🌊 워터폴 현금흐름</button>
+			<button class="view-btn" onclick="switchView('tAccount')">📋 손익계산서 (T-Account)</button>
+			<button class="view-btn" onclick="switchView('balanceSheet')">⚖️ 재무상태표</button>
+		</div>
+
+		<!-- 1. 10년 매출/영업이익 추이 -->
+		<div id="trendView" class="view-content active">
+			<div class="chart-container">
+				<canvas id="trendChart"></canvas>
+			</div>
+			<div class="stats-grid">
+				<div class="stat-card">
+					<h3>최근 매출 (2024)</h3>
+					<div class="value" id="latestRevenue">-</div>
+				</div>
+				<div class="stat-card">
+					<h3>최근 영업이익 (2024)</h3>
+					<div class="value" id="latestProfit">-</div>
+				</div>
+				<div class="stat-card">
+					<h3>최근 영업이익률</h3>
+					<div class="value" id="latestMargin">-</div>
+				</div>
+				<div class="stat-card">
+					<h3>10년 평균 영업이익률</h3>
+					<div class="value" id="avgMargin">-</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 2. 10년 현금흐름 추이 -->
+		<div id="cashflowTrendView" class="view-content">
+			<div class="chart-container">
+				<canvas id="cashflowTrendChart"></canvas>
+			</div>
+			<div class="stats-grid">
+				<div class="stat-card" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);">
+					<h3>평균 영업활동 CF</h3>
+					<div class="value" id="avgOperatingCF">-</div>
+				</div>
+				<div class="stat-card" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
+					<h3>평균 투자활동 CF</h3>
+					<div class="value" id="avgInvestingCF">-</div>
+				</div>
+				<div class="stat-card" style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);">
+					<h3>평균 재무활동 CF</h3>
+					<div class="value" id="avgFinancingCF">-</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 3. 워터폴 현금흐름 -->
+		<div id="waterfallView" class="view-content">
+			<div class="filter-container">
+				<select id="cfPeriodType" onchange="updateWaterfall()">
+					<option value="annual">연도별</option>
+					<option value="quarterly">분기별</option>
+				</select>
+				<select id="cfPeriodSelect" onchange="updateWaterfall()">
+					<option value="2024">2024년</option>
+					<option value="2023">2023년</option>
+					<option value="2022">2022년</option>
+				</select>
+			</div>
+			<div class="chart-container">
+				<canvas id="waterfallChart"></canvas>
+			</div>
+		</div>
+
+		<!-- 4. T-Account 손익계산서 -->
+		<div id="tAccountView" class="view-content">
+			<div style="max-width: 900px; margin: 0 auto;">
+				<img src="samsung_income_statement_t_account.png" style="width: 100%; border-radius: 10px;">
+			</div>
+			<div class="stats-grid">
+				<div class="stat-card">
+					<h3>2023 매출</h3>
+					<div class="value">258.9조원</div>
+				</div>
+				<div class="stat-card">
+					<h3>2023 영업이익</h3>
+					<div class="value">6.6조원</div>
+				</div>
+				<div class="stat-card">
+					<h3>2023 영업이익률</h3>
+					<div class="value">2.54%</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 5. 재무상태표 -->
+		<div id="balanceSheetView" class="view-content">
+			<div class="balance-sheet-container">
+				<div class="bs-column">
+					<h3>💰 자산 (Assets)</h3>
+					<div class="bs-item asset">
+						<div class="label">유동자산</div>
+						<div class="amount">195.9조원</div>
+						<div class="tooltip">현금성자산, 단기금융상품, 매출채권, 재고자산 등</div>
+					</div>
+					<div class="bs-item asset">
+						<div class="label">비유동자산</div>
+						<div class="amount">260.0조원</div>
+						<div class="tooltip">유형자산, 무형자산, 장기금융자산 등</div>
+					</div>
+					<div class="bs-item asset" style="background: #e3f2fd;">
+						<div class="label" style="font-size: 18px;">자산 총계</div>
+						<div class="amount" style="font-size: 24px;">455.9조원</div>
+					</div>
+				</div>
+				<div class="bs-column">
+					<h3>💳 부채 & 자본 (Liabilities & Equity)</h3>
+					<div class="bs-item liability">
+						<div class="label">유동부채</div>
+						<div class="amount">75.7조원</div>
+						<div class="tooltip">매입채무, 단기차입금, 미지급금 등</div>
+					</div>
+					<div class="bs-item liability">
+						<div class="label">비유동부채</div>
+						<div class="amount">16.5조원</div>
+						<div class="tooltip">장기차입금, 사채, 퇴직급여충당부채 등</div>
+					</div>
+					<div class="bs-item equity">
+						<div class="label">자본</div>
+						<div class="amount">363.7조원</div>
+						<div class="tooltip">자본금, 자본잉여금, 이익잉여금, 기타포괄손익누계액 등</div>
+					</div>
+					<div class="bs-item" style="background: #e8f5e9;">
+						<div class="label" style="font-size: 18px;">부채 + 자본 총계</div>
+						<div class="amount" style="font-size: 24px;">455.9조원</div>
+					</div>
+				</div>
+			</div>
+			<div class="stats-grid">
+				<div class="stat-card">
+					<h3>부채비율</h3>
+					<div class="value">25.4%</div>
+				</div>
+				<div class="stat-card">
+					<h3>유동비율</h3>
+					<div class="value">258.8%</div>
+				</div>
+				<div class="stat-card">
+					<h3>자기자본비율</h3>
+					<div class="value">79.8%</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="footer">
+			<p>📡 데이터 출처: 금융감독원 전자공시시스템 (DART)</p>
+			<p>🏢 기업: 삼성전자(주) | 업데이트: 2025년</p>
+		</div>
+	</div>
+
+	<script>
+		let charts = {
+			trend: null,
+			cashflowTrend: null,
+			waterfall: null
+		};
+
+		let data = {
+			financial: [],
+			cashflow: null
+		};
+
+		// 뷰 전환
+		function switchView(viewName) {
+			document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+			event.target.classList.add('active');
+			document.querySelectorAll('.view-content').forEach(content => content.classList.remove('active'));
+			document.getElementById(viewName + 'View').classList.add('active');
+		}
+
+		// 데이터 로드
+		async function loadData() {
+			try {
+				const [financialRes, cashflowRes] = await Promise.all([
+					fetch('samsung_10year_data.json'),
+					fetch('samsung_cashflow_data.json')
+				]);
+
+				data.financial = (await financialRes.json()).filter(d => d.revenue > 0);
+				data.cashflow = await cashflowRes.json();
+
+				createAllCharts();
+				updateStats();
+			} catch (error) {
+				console.error('데이터 로드 실패:', error);
+			}
+		}
+
+		// 모든 차트 생성
+		function createAllCharts() {
+			createTrendChart();
+			createCashflowTrendChart();
+			updateWaterfall();
+		}
+
+		// 1. 매출/영업이익 추이
+		function createTrendChart() {
+			const ctx = document.getElementById('trendChart').getContext('2d');
+			const years = data.financial.map(d => d.year + '년');
+			const revenues = data.financial.map(d => d.revenue / 1000000000000);
+			const profits = data.financial.map(d => d.operating_profit / 1000000000000);
+
+			if (charts.trend) charts.trend.destroy();
+			charts.trend = new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: years,
+					datasets: [{
+						label: '매출 (조원)',
+						data: revenues,
+						backgroundColor: 'rgba(102, 126, 234, 0.7)',
+						borderColor: 'rgba(102, 126, 234, 1)',
+						borderWidth: 2,
+						borderRadius: 8
+					}, {
+						label: '영업이익 (조원)',
+						data: profits,
+						type: 'line',
+						borderColor: 'rgba(255, 99, 132, 1)',
+						backgroundColor: 'rgba(255, 99, 132, 0.2)',
+						borderWidth: 3,
+						pointRadius: 6,
+						tension: 0.4
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						title: { display: true, text: '삼성전자 10년 매출 및 영업이익 추이', font: { size: 18 } },
+						legend: { display: true, position: 'top' }
+					},
+					scales: {
+						y: { beginAtZero: true, ticks: { callback: v => v.toFixed(0) + '조원' } }
+					}
+				}
+			});
+		}
+
+		// 2. 현금흐름 추이
+		function createCashflowTrendChart() {
+			const ctx = document.getElementById('cashflowTrendChart').getContext('2d');
+			const cfData = data.cashflow.annual;
+			const years = cfData.map(d => d.year + '년');
+			const operating = cfData.map(d => d.operating_cf / 1000000000000);
+			const investing = cfData.map(d => d.investing_cf / 1000000000000);
+			const financing = cfData.map(d => d.financing_cf / 1000000000000);
+
+			if (charts.cashflowTrend) charts.cashflowTrend.destroy();
+			charts.cashflowTrend = new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: years,
+					datasets: [{
+						label: '영업활동 CF',
+						data: operating,
+						backgroundColor: 'rgba(52, 152, 219, 0.8)',
+						borderColor: 'rgba(52, 152, 219, 1)',
+						borderWidth: 2
+					}, {
+						label: '투자활동 CF',
+						data: investing,
+						backgroundColor: 'rgba(243, 156, 18, 0.8)',
+						borderColor: 'rgba(243, 156, 18, 1)',
+						borderWidth: 2
+					}, {
+						label: '재무활동 CF',
+						data: financing,
+						backgroundColor: 'rgba(46, 204, 113, 0.8)',
+						borderColor: 'rgba(46, 204, 113, 1)',
+						borderWidth: 2
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						title: { display: true, text: '삼성전자 10년 현금흐름 추이', font: { size: 18 } },
+						legend: { display: true, position: 'top' }
+					},
+					scales: {
+						y: { ticks: { callback: v => v.toFixed(0) + '조원' } }
+					}
+				}
+			});
+
+			// 통계 업데이트
+			const avgOp = operating.reduce((a,b)=>a+b,0) / operating.length;
+			const avgInv = investing.reduce((a,b)=>a+b,0) / investing.length;
+			const avgFin = financing.reduce((a,b)=>a+b,0) / financing.length;
+			document.getElementById('avgOperatingCF').textContent = avgOp.toFixed(1) + '조원';
+			document.getElementById('avgInvestingCF').textContent = avgInv.toFixed(1) + '조원';
+			document.getElementById('avgFinancingCF').textContent = avgFin.toFixed(1) + '조원';
+		}
+
+		// 3. 워터폴 차트
+		function updateWaterfall() {
+			const periodType = document.getElementById('cfPeriodType').value;
+			const period = document.getElementById('cfPeriodSelect').value;
+
+			let cfData;
+			if (periodType === 'annual') {
+				cfData = data.cashflow.annual.find(d => d.year == period);
+			} else {
+				cfData = data.cashflow.quarterly[0]; // 임시
+			}
+
+			if (!cfData) return;
+
+			const ctx = document.getElementById('waterfallChart').getContext('2d');
+			const beginning = cfData.beginning_cash / 1000000000000;
+			const operating = cfData.operating_cf / 1000000000000;
+			const investing = cfData.investing_cf / 1000000000000;
+			const financing = cfData.financing_cf / 1000000000000;
+			const ending = cfData.ending_cash / 1000000000000;
+
+			const labels = ['기초현금', '영업활동', '투자활동', '재무활동', '기말현금'];
+			const values = [beginning, operating, investing, financing, ending];
+
+			if (charts.waterfall) charts.waterfall.destroy();
+			charts.waterfall = new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: labels,
+					datasets: [{
+						label: '현금흐름 (조원)',
+						data: values,
+						backgroundColor: [
+							'rgba(149, 165, 166, 0.8)',
+							'rgba(52, 152, 219, 0.8)',
+							'rgba(243, 156, 18, 0.8)',
+							'rgba(46, 204, 113, 0.8)',
+							'rgba(52, 73, 94, 0.8)'
+						],
+						borderColor: [
+							'rgba(149, 165, 166, 1)',
+							'rgba(52, 152, 219, 1)',
+							'rgba(243, 156, 18, 1)',
+							'rgba(46, 204, 113, 1)',
+							'rgba(52, 73, 94, 1)'
+						],
+						borderWidth: 2,
+						borderRadius: 8
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						title: { display: true, text: `${cfData.period} 현금흐름 워터폴`, font: { size: 18 } },
+						legend: { display: false }
+					},
+					scales: {
+						y: { ticks: { callback: v => v.toFixed(0) + '조원' } }
+					}
+				}
+			});
+		}
+
+		// 통계 업데이트
+		function updateStats() {
+			const latest = data.financial[data.financial.length - 1];
+			const avgMargin = data.financial.reduce((sum, d) => sum + d.operating_margin, 0) / data.financial.length;
+			document.getElementById('latestRevenue').textContent = (latest.revenue / 1000000000000).toFixed(1) + '조원';
+			document.getElementById('latestProfit').textContent = (latest.operating_profit / 1000000000000).toFixed(1) + '조원';
+			document.getElementById('latestMargin').textContent = latest.operating_margin.toFixed(2) + '%';
+			document.getElementById('avgMargin').textContent = avgMargin.toFixed(2) + '%';
+		}
+
+		window.addEventListener('load', loadData);
+	</script>
+</body>
+</html>

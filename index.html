@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>한국 10대 기업 재무분석</title>
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+
+		body {
+			font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			min-height: 100vh;
+			padding: 40px 20px;
+		}
+
+		.container {
+			max-width: 1400px;
+			margin: 0 auto;
+		}
+
+		header {
+			text-align: center;
+			color: white;
+			margin-bottom: 60px;
+			animation: fadeInDown 0.8s;
+		}
+
+		h1 {
+			font-size: 48px;
+			margin-bottom: 15px;
+			text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+		}
+
+		.subtitle {
+			font-size: 20px;
+			opacity: 0.9;
+		}
+
+		.companies-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+			gap: 30px;
+			margin-bottom: 40px;
+		}
+
+		.company-card {
+			background: white;
+			border-radius: 20px;
+			padding: 30px;
+			cursor: pointer;
+			transition: all 0.3s;
+			box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+			position: relative;
+			overflow: hidden;
+			animation: fadeInUp 0.6s;
+		}
+
+		.company-card:hover {
+			transform: translateY(-10px);
+			box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+		}
+
+		.company-card::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 5px;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		}
+
+		.company-rank {
+			position: absolute;
+			top: 20px;
+			right: 20px;
+			width: 50px;
+			height: 50px;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			font-weight: bold;
+			font-size: 20px;
+			box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+		}
+
+		.company-name {
+			font-size: 28px;
+			font-weight: bold;
+			color: #2c3e50;
+			margin-bottom: 10px;
+		}
+
+		.company-info {
+			display: flex;
+			gap: 15px;
+			margin-bottom: 15px;
+			flex-wrap: wrap;
+		}
+
+		.info-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			padding: 6px 12px;
+			background: #f8f9fa;
+			border-radius: 20px;
+			font-size: 14px;
+			color: #7f8c8d;
+		}
+
+		.sector-badge {
+			display: inline-block;
+			padding: 8px 16px;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			border-radius: 20px;
+			font-size: 14px;
+			font-weight: bold;
+		}
+
+		.company-description {
+			color: #7f8c8d;
+			font-size: 14px;
+			line-height: 1.6;
+			margin-top: 15px;
+		}
+
+		.stats-row {
+			display: flex;
+			gap: 10px;
+			margin-top: 20px;
+			padding-top: 20px;
+			border-top: 1px solid #ecf0f1;
+		}
+
+		.stat-item {
+			flex: 1;
+			text-align: center;
+		}
+
+		.stat-label {
+			font-size: 12px;
+			color: #7f8c8d;
+			margin-bottom: 5px;
+		}
+
+		.stat-value {
+			font-size: 16px;
+			font-weight: bold;
+			color: #2c3e50;
+		}
+
+		footer {
+			text-align: center;
+			color: white;
+			margin-top: 60px;
+			opacity: 0.9;
+			font-size: 14px;
+		}
+
+		@keyframes fadeInDown {
+			from {
+				opacity: 0;
+				transform: translateY(-30px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		@keyframes fadeInUp {
+			from {
+				opacity: 0;
+				transform: translateY(30px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.company-card:nth-child(1) { animation-delay: 0.1s; }
+		.company-card:nth-child(2) { animation-delay: 0.15s; }
+		.company-card:nth-child(3) { animation-delay: 0.2s; }
+		.company-card:nth-child(4) { animation-delay: 0.25s; }
+		.company-card:nth-child(5) { animation-delay: 0.3s; }
+		.company-card:nth-child(6) { animation-delay: 0.35s; }
+		.company-card:nth-child(7) { animation-delay: 0.4s; }
+		.company-card:nth-child(8) { animation-delay: 0.45s; }
+		.company-card:nth-child(9) { animation-delay: 0.5s; }
+		.company-card:nth-child(10) { animation-delay: 0.55s; }
+
+		.view-toggle {
+			padding: 12px 30px;
+			font-size: 16px;
+			font-weight: bold;
+			border: 2px solid #667eea;
+			border-radius: 50px;
+			background: white;
+			color: #667eea;
+			cursor: pointer;
+			transition: all 0.3s;
+		}
+
+		.view-toggle:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+		}
+
+		.view-toggle.active {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+		}
+
+		/* 리스트형 스타일 */
+		.companies-list {
+			display: flex;
+			flex-direction: column;
+			gap: 15px;
+		}
+
+		.company-list-item {
+			background: white;
+			border-radius: 15px;
+			padding: 20px 30px;
+			cursor: pointer;
+			transition: all 0.3s;
+			box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+			display: grid;
+			grid-template-columns: 60px 200px 120px 150px 1fr 120px;
+			align-items: center;
+			gap: 20px;
+			animation: fadeInUp 0.6s;
+		}
+
+		.company-list-item:hover {
+			transform: translateX(10px);
+			box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+		}
+
+		.list-rank {
+			width: 50px;
+			height: 50px;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			font-weight: bold;
+			font-size: 20px;
+		}
+
+		.list-name {
+			font-size: 22px;
+			font-weight: bold;
+			color: #2c3e50;
+		}
+
+		.list-stock {
+			font-size: 14px;
+			color: #7f8c8d;
+			background: #f8f9fa;
+			padding: 6px 12px;
+			border-radius: 20px;
+			text-align: center;
+		}
+
+		.list-sector {
+			display: inline-block;
+			padding: 8px 16px;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			border-radius: 20px;
+			font-size: 14px;
+			font-weight: bold;
+			text-align: center;
+		}
+
+		.list-description {
+			color: #7f8c8d;
+			font-size: 14px;
+		}
+
+		.list-arrow {
+			font-size: 24px;
+			color: #667eea;
+			transition: all 0.3s;
+		}
+
+		.company-list-item:hover .list-arrow {
+			transform: translateX(5px);
+		}
+
+		.loading-indicator {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background: rgba(0,0,0,0.8);
+			color: white;
+			padding: 20px 40px;
+			border-radius: 15px;
+			font-size: 18px;
+			display: none;
+			z-index: 1000;
+		}
+
+		.loading-indicator.show {
+			display: block;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<header>
+			<h1>📊 한국 10대 기업 재무분석</h1>
+			<p class="subtitle">시가총액 기준 TOP 10 기업의 재무제표를 한눈에</p>
+		</header>
+
+		<div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 40px;">
+			<button class="view-toggle active" onclick="switchViewMode('card')">
+				🎴 카드형
+			</button>
+			<button class="view-toggle" onclick="switchViewMode('list')">
+				📋 리스트형
+			</button>
+		</div>
+
+		<div class="companies-grid" id="companiesGrid"></div>
+
+		<footer>
+			<p>📡 데이터 출처: 금융감독원 전자공시시스템 (DART)</p>
+			<p style="margin-top: 10px; font-size: 12px;">클릭하여 각 기업의 상세 재무분석 대시보드로 이동</p>
+		</footer>
+	</div>
+
+	<div class="loading-indicator" id="loadingIndicator">
+		데이터 로딩 중...
+	</div>
+
+	<script>
+		const companies = [
+			{
+				rank: 1,
+				name: "삼성전자",
+				code: "00126380",
+				stock: "005930",
+				sector: "전자",
+				description: "세계 최대 반도체 및 스마트폰 제조사",
+				founded: "1969",
+				employees: "267,937명"
+			},
+			{
+				rank: 2,
+				name: "SK하이닉스",
+				code: "00164779",
+				stock: "000660",
+				sector: "전자",
+				description: "글로벌 메모리 반도체 선도 기업",
+				founded: "1983",
+				employees: "35,246명"
+			},
+			{
+				rank: 3,
+				name: "LG에너지솔루션",
+				code: "00164742",
+				stock: "373220",
+				sector: "전자",
+				description: "세계 2위 전기차 배터리 제조사",
+				founded: "2020",
+				employees: "42,858명"
+			},
+			{
+				rank: 4,
+				name: "삼성바이오로직스",
+				code: "00113399",
+				stock: "207940",
+				sector: "제약",
+				description: "글로벌 바이오의약품 위탁생산 선도 기업",
+				founded: "2011",
+				employees: "3,124명"
+			},
+			{
+				rank: 5,
+				name: "현대차",
+				code: "00165890",
+				stock: "005380",
+				sector: "자동차",
+				description: "세계 3위 완성차 제조 그룹",
+				founded: "1967",
+				employees: "120,565명"
+			},
+			{
+				rank: 6,
+				name: "셀트리온",
+				code: "00164529",
+				stock: "068270",
+				sector: "제약",
+				description: "국내 1위 바이오시밀러 제조사",
+				founded: "2002",
+				employees: "4,861명"
+			},
+			{
+				rank: 7,
+				name: "기아",
+				code: "00167799",
+				stock: "000270",
+				sector: "자동차",
+				description: "글로벌 완성차 제조 및 전기차 선도 기업",
+				founded: "1944",
+				employees: "78,424명"
+			},
+			{
+				rank: 8,
+				name: "POSCO홀딩스",
+				code: "00159645",
+				stock: "005490",
+				sector: "철강",
+				description: "세계적인 철강 및 소재 전문 기업",
+				founded: "1968",
+				employees: "37,249명"
+			},
+			{
+				rank: 9,
+				name: "KB금융",
+				code: "00356370",
+				stock: "105560",
+				sector: "금융",
+				description: "국내 최대 금융지주회사",
+				founded: "2008",
+				employees: "31,524명"
+			},
+			{
+				rank: 10,
+				name: "신한지주",
+				code: "00168099",
+				stock: "055550",
+				sector: "금융",
+				description: "종합 금융서비스 선도 그룹",
+				founded: "2001",
+				employees: "30,187명"
+			}
+		];
+
+		const companiesGrid = document.getElementById('companiesGrid');
+		const loadingIndicator = document.getElementById('loadingIndicator');
+		let currentViewMode = 'card';
+
+		// 뷰 모드 전환
+		function switchViewMode(mode) {
+			currentViewMode = mode;
+
+			// 버튼 활성화 상태 변경
+			document.querySelectorAll('.view-toggle').forEach(btn => btn.classList.remove('active'));
+			event.target.classList.add('active');
+
+			// 그리드 스타일 변경
+			if (mode === 'list') {
+				companiesGrid.className = 'companies-list';
+			} else {
+				companiesGrid.className = 'companies-grid';
+			}
+
+			// 컨텐츠 다시 렌더링
+			renderCompanies();
+		}
+
+		// 기업 목록 렌더링
+		function renderCompanies() {
+			companiesGrid.innerHTML = '';
+
+			companies.forEach(company => {
+				if (currentViewMode === 'card') {
+					renderCardView(company);
+				} else {
+					renderListView(company);
+				}
+			});
+		}
+
+		// 카드형 렌더링
+		function renderCardView(company) {
+			const card = document.createElement('div');
+			card.className = 'company-card';
+			card.onclick = () => navigateToCompany(company);
+
+			card.innerHTML = `
+				<div class="company-rank">${company.rank}</div>
+				<div class="company-name">${company.name}</div>
+				<div class="company-info">
+					<div class="info-badge">📈 ${company.stock}</div>
+					<div class="sector-badge">${company.sector}</div>
+				</div>
+				<div class="company-description">${company.description}</div>
+				<div class="stats-row">
+					<div class="stat-item">
+						<div class="stat-label">설립연도</div>
+						<div class="stat-value">${company.founded}</div>
+					</div>
+					<div class="stat-item">
+						<div class="stat-label">임직원</div>
+						<div class="stat-value">${company.employees}</div>
+					</div>
+				</div>
+			`;
+
+			companiesGrid.appendChild(card);
+		}
+
+		// 리스트형 렌더링
+		function renderListView(company) {
+			const item = document.createElement('div');
+			item.className = 'company-list-item';
+			item.onclick = () => navigateToCompany(company);
+
+			item.innerHTML = `
+				<div class="list-rank">${company.rank}</div>
+				<div class="list-name">${company.name}</div>
+				<div class="list-stock">📈 ${company.stock}</div>
+				<div class="list-sector">${company.sector}</div>
+				<div class="list-description">${company.description}</div>
+				<div class="list-arrow">→</div>
+			`;
+
+			companiesGrid.appendChild(item);
+		}
+
+		// 초기 렌더링
+		renderCompanies();
+
+		function navigateToCompany(company) {
+			loadingIndicator.classList.add('show');
+			loadingIndicator.textContent = `${company.name} 데이터 로딩 중...`;
+
+			// 0.5초 후 대시보드로 이동 (로딩 애니메이션 효과)
+			setTimeout(() => {
+				window.location.href = `final_dashboard.html?company=${encodeURIComponent(company.code)}&name=${encodeURIComponent(company.name)}&file=${encodeURIComponent(company.code)}_10year_data.json`;
+			}, 500);
+		}
+	</script>
+</body>
+</html>

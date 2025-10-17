@@ -1,0 +1,70 @@
+{
+  "revenue": {
+    "매출채권": {
+      "current": "36647393000000",
+      "previous": "35721563000000",
+      "account_id": "ifrs-full_CurrentTradeReceivables"
+    },
+    "매출원가": {
+      "current": "180388580000000",
+      "previous": "190041770000000",
+      "account_id": "ifrs-full_CostOfSales"
+    },
+    "매출총이익": {
+      "current": "78546914000000",
+      "previous": "112189590000000",
+      "account_id": "ifrs-full_GrossProfit"
+    }
+  },
+  "costs": {
+    "판매비와관리비": {
+      "current": "71979938000000",
+      "previous": "68812960000000",
+      "account_id": "dart_TotalSellingGeneralAdministrativeExpenses"
+    },
+    "매출원가": {
+      "current": "180388580000000",
+      "previous": "190041770000000",
+      "account_id": "ifrs-full_CostOfSales"
+    },
+    "매출총이익": {
+      "current": "78546914000000",
+      "previous": "112189590000000",
+      "account_id": "ifrs-full_GrossProfit"
+    },
+    "법인세비용차감전순이익(손실)": {
+      "current": "11006265000000",
+      "previous": "46440474000000",
+      "account_id": "ifrs-full_ProfitLossBeforeTax"
+    }
+  },
+  "operating_profit": {
+    "영업이익": {
+      "current": "6566976000000",
+      "previous": "43376630000000",
+      "account_id": "dart_OperatingIncomeLoss"
+    },
+    "계속영업이익(손실)": {
+      "current": "15487100000000",
+      "previous": "55654077000000",
+      "account_id": "ifrs-full_ProfitLossFromContinuingOperations"
+    }
+  },
+  "net_profit": {
+    "당기순이익(손실)": {
+      "current": "14473401000000",
+      "previous": "54730018000000",
+      "account_id": "ifrs-full_ProfitLoss"
+    },
+    "비지배지분에 귀속되는 당기순이익(손실)": {
+      "current": "1013699000000",
+      "previous": "924059000000",
+      "account_id": "ifrs-full_ProfitLossAttributableToNoncontrollingInterests"
+    },
+    "지배기업의 소유주에게 귀속되는 당기순이익(손실)": {
+      "current": "14473401000000",
+      "previous": "54730018000000",
+      "account_id": "ifrs-full_ProfitLossAttributableToOwnersOfParent"
+    }
+  }
+}

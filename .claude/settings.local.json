@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(start comprehensive_dashboard.html)",
+      "Bash(dir:*)",
+      "Bash(npm start)",
+      "Bash(start python -m http.server 8000)",
+      "Bash(timeout /t 2)",
+      "Bash(start:*)",
+      "Bash(where:*)",
+      "Bash(npm install:*)",
+      "Bash(vercel:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

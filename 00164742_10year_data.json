@@ -1,0 +1,82 @@
+[
+  {
+    "year": 2015,
+    "revenue": 91958736000000,
+    "operating_profit": 6357906000000,
+    "cost_of_sales": 73701296000000,
+    "selling_admin_expenses": 11899534000000,
+    "operating_margin": 6.91
+  },
+  {
+    "year": 2016,
+    "revenue": 93649024000000,
+    "operating_profit": 5193500000000,
+    "cost_of_sales": 75959720000000,
+    "selling_admin_expenses": 12495804000000,
+    "operating_margin": 5.55
+  },
+  {
+    "year": 2017,
+    "revenue": 96376079000000,
+    "operating_profit": 4574667000000,
+    "cost_of_sales": 78798172000000,
+    "selling_admin_expenses": 13003240000000,
+    "operating_margin": 4.75
+  },
+  {
+    "year": 2018,
+    "revenue": 96812609000000,
+    "operating_profit": 2422165000000,
+    "cost_of_sales": 81670479000000,
+    "selling_admin_expenses": 12719965000000,
+    "operating_margin": 2.5
+  },
+  {
+    "year": 2019,
+    "revenue": 105746422000000,
+    "operating_profit": 3605505000000,
+    "cost_of_sales": 88091409000000,
+    "selling_admin_expenses": 14049508000000,
+    "operating_margin": 3.41
+  },
+  {
+    "year": 2020,
+    "revenue": 103997601000000,
+    "operating_profit": 2394671000000,
+    "cost_of_sales": 85515931000000,
+    "selling_admin_expenses": 16086999000000,
+    "operating_margin": 2.3
+  },
+  {
+    "year": 2021,
+    "revenue": 117610626000000,
+    "operating_profit": 6678949000000,
+    "cost_of_sales": 95680131000000,
+    "selling_admin_expenses": 15251546000000,
+    "operating_margin": 5.68
+  },
+  {
+    "year": 2022,
+    "revenue": 142527535000000,
+    "operating_profit": 9819769000000,
+    "cost_of_sales": 114209483000000,
+    "selling_admin_expenses": 18498283000000,
+    "operating_margin": 6.89
+  },
+  {
+    "year": 2023,
+    "revenue": 162663579000000,
+    "operating_profit": 15126901000000,
+    "cost_of_sales": 129179183000000,
+    "selling_admin_expenses": 18357495000000,
+    "operating_margin": 9.3
+  },
+  {
+    "year": 2024,
+    "revenue": 175231153000000,
+    "operating_profit": 14239592000000,
+    "cost_of_sales": 139481946000000,
+    "selling_admin_expenses": 21509615000000,
+    "operating_margin": 8.13
+  }
+]

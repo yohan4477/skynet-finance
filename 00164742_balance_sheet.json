@@ -1,0 +1,48 @@
+{
+  "assets": {
+    "current": {
+      "유동자산": {
+        "amount": 101724717000000,
+        "account_id": "ifrs-full_CurrentAssets"
+      },
+      "현금및현금성자산": {
+        "amount": 19166619000000,
+        "account_id": "ifrs-full_CashAndCashEquivalents"
+      },
+      "재고자산": {
+        "amount": 17400346000000,
+        "account_id": "ifrs-full_Inventories"
+      }
+    },
+    "non_current": {
+      "유형자산": {
+        "amount": 38920900000000,
+        "account_id": "ifrs-full_PropertyPlantAndEquipment"
+      }
+    },
+    "total": 282463355000000
+  },
+  "liabilities": {
+    "current": {
+      "유동부채": {
+        "amount": 73362103000000,
+        "account_id": "ifrs-full_CurrentLiabilities"
+      }
+    },
+    "non_current": {},
+    "total": 180653915000000
+  },
+  "equity": {
+    "items": {
+      "자본금": {
+        "amount": 1488993000000,
+        "account_id": "ifrs-full_IssuedCapital"
+      },
+      "이익잉여금": {
+        "amount": 88665805000000,
+        "account_id": "ifrs-full_RetainedEarnings"
+      }
+    },
+    "total": 101809440000000
+  }
+}

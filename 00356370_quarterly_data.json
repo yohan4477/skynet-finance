@@ -1,0 +1,234 @@
+[
+  {
+    "year": 2016,
+    "quarter": 1,
+    "period": "2016년 1분기",
+    "revenue": 0,
+    "operating_profit": 233512997524,
+    "operating_margin": 0
+  },
+  {
+    "year": 2016,
+    "quarter": 2,
+    "period": "2016년 2분기",
+    "revenue": 0,
+    "operating_profit": 225393031460,
+    "operating_margin": 0
+  },
+  {
+    "year": 2016,
+    "quarter": 3,
+    "period": "2016년 3분기",
+    "revenue": 0,
+    "operating_profit": 244157523149,
+    "operating_margin": 0
+  },
+  {
+    "year": 2017,
+    "quarter": 1,
+    "period": "2017년 1분기",
+    "revenue": 0,
+    "operating_profit": 259956363587,
+    "operating_margin": 0
+  },
+  {
+    "year": 2017,
+    "quarter": 2,
+    "period": "2017년 2분기",
+    "revenue": 0,
+    "operating_profit": 232488172079,
+    "operating_margin": 0
+  },
+  {
+    "year": 2017,
+    "quarter": 3,
+    "period": "2017년 3분기",
+    "revenue": 0,
+    "operating_profit": 252722210010,
+    "operating_margin": 0
+  },
+  {
+    "year": 2018,
+    "quarter": 1,
+    "period": "2018년 1분기",
+    "revenue": 0,
+    "operating_profit": 283666683892,
+    "operating_margin": 0
+  },
+  {
+    "year": 2018,
+    "quarter": 2,
+    "period": "2018년 2분기",
+    "revenue": 0,
+    "operating_profit": 267252525508,
+    "operating_margin": 0
+  },
+  {
+    "year": 2018,
+    "quarter": 3,
+    "period": "2018년 3분기",
+    "revenue": 0,
+    "operating_profit": 277539279012,
+    "operating_margin": 0
+  },
+  {
+    "year": 2019,
+    "quarter": 1,
+    "period": "2019년 1분기",
+    "revenue": 0,
+    "operating_profit": 322095588947,
+    "operating_margin": 0
+  },
+  {
+    "year": 2019,
+    "quarter": 2,
+    "period": "2019년 2분기",
+    "revenue": 0,
+    "operating_profit": 301496785222,
+    "operating_margin": 0
+  },
+  {
+    "year": 2019,
+    "quarter": 3,
+    "period": "2019년 3분기",
+    "revenue": 1964865666596,
+    "operating_profit": 311845360068,
+    "operating_margin": 15.87
+  },
+  {
+    "year": 2020,
+    "quarter": 1,
+    "period": "2020년 1분기",
+    "revenue": 1896362101237,
+    "operating_profit": 333697007711,
+    "operating_margin": 17.6
+  },
+  {
+    "year": 2020,
+    "quarter": 2,
+    "period": "2020년 2분기",
+    "revenue": 1783158799542,
+    "operating_profit": 303282465396,
+    "operating_margin": 17.01
+  },
+  {
+    "year": 2020,
+    "quarter": 3,
+    "period": "2020년 3분기",
+    "revenue": 2070568751390,
+    "operating_profit": 327617005561,
+    "operating_margin": 15.82
+  },
+  {
+    "year": 2021,
+    "quarter": 1,
+    "period": "2021년 1분기",
+    "revenue": 2036668561220,
+    "operating_profit": 370572880675,
+    "operating_margin": 18.2
+  },
+  {
+    "year": 2021,
+    "quarter": 2,
+    "period": "2021년 2분기",
+    "revenue": 2021420940050,
+    "operating_profit": 335770093031,
+    "operating_margin": 16.61
+  },
+  {
+    "year": 2021,
+    "quarter": 3,
+    "period": "2021년 3분기",
+    "revenue": 2010336477334,
+    "operating_profit": 342253601544,
+    "operating_margin": 17.02
+  },
+  {
+    "year": 2022,
+    "quarter": 1,
+    "period": "2022년 1분기",
+    "revenue": 1644975411116,
+    "operating_profit": 175574250765,
+    "operating_margin": 10.67
+  },
+  {
+    "year": 2022,
+    "quarter": 2,
+    "period": "2022년 2분기",
+    "revenue": 1862677109713,
+    "operating_profit": 216585051530,
+    "operating_margin": 11.63
+  },
+  {
+    "year": 2022,
+    "quarter": 3,
+    "period": "2022년 3분기",
+    "revenue": 1870345502917,
+    "operating_profit": 190063223146,
+    "operating_margin": 10.16
+  },
+  {
+    "year": 2023,
+    "quarter": 1,
+    "period": "2023년 1분기",
+    "revenue": 1683723394359,
+    "operating_profit": 145918281869,
+    "operating_margin": 8.67
+  },
+  {
+    "year": 2023,
+    "quarter": 2,
+    "period": "2023년 2분기",
+    "revenue": 1807719998272,
+    "operating_profit": 157849151171,
+    "operating_margin": 8.73
+  },
+  {
+    "year": 2023,
+    "quarter": 3,
+    "period": "2023년 3분기",
+    "revenue": 1746181026542,
+    "operating_profit": 128497960202,
+    "operating_margin": 7.36
+  },
+  {
+    "year": 2024,
+    "quarter": 1,
+    "period": "2024년 1분기",
+    "revenue": 1728701231113,
+    "operating_profit": 151033726598,
+    "operating_margin": 8.74
+  },
+  {
+    "year": 2024,
+    "quarter": 2,
+    "period": "2024년 2분기",
+    "revenue": 1759670347652,
+    "operating_profit": 158537063877,
+    "operating_margin": 9.01
+  },
+  {
+    "year": 2024,
+    "quarter": 3,
+    "period": "2024년 3분기",
+    "revenue": 1713627379529,
+    "operating_profit": 106078947680,
+    "operating_margin": 6.19
+  },
+  {
+    "year": 2025,
+    "quarter": 1,
+    "period": "2025년 1분기",
+    "revenue": 1697877264205,
+    "operating_profit": 142369362877,
+    "operating_margin": 8.39
+  },
+  {
+    "year": 2025,
+    "quarter": 2,
+    "period": "2025년 2분기",
+    "revenue": 1604872243862,
+    "operating_profit": 54814037403,
+    "operating_margin": 3.42
+  }
+]

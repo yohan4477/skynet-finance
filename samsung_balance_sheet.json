@@ -1,0 +1,73 @@
+{
+  "assets": {
+    "current": {
+      "유동자산": {
+        "amount": 195936557000000,
+        "account_id": "ifrs-full_CurrentAssets"
+      },
+      "매출채권": {
+        "amount": 36647393000000,
+        "account_id": "ifrs-full_CurrentTradeReceivables"
+      },
+      "재고자산": {
+        "amount": 51625874000000,
+        "account_id": "ifrs-full_Inventories"
+      },
+      "단기금융상품": {
+        "amount": 22690924000000,
+        "account_id": "ifrs-full_ShorttermDepositsNotClassifiedAsCashEquivalents"
+      }
+    },
+    "non_current": {
+      "비유동자산": {
+        "amount": 259969423000000,
+        "account_id": "ifrs-full_NoncurrentAssets"
+      },
+      "유형자산": {
+        "amount": 187256262000000,
+        "account_id": "ifrs-full_PropertyPlantAndEquipment"
+      }
+    },
+    "total": 455905980000000
+  },
+  "liabilities": {
+    "current": {
+      "유동부채": {
+        "amount": 75719452000000,
+        "account_id": "ifrs-full_CurrentLiabilities"
+      },
+      "단기차입금": {
+        "amount": 7114601000000,
+        "account_id": "-표준계정코드 미사용-"
+      },
+      "매입채무": {
+        "amount": 11319824000000,
+        "account_id": "ifrs-full_TradeAndOtherCurrentPayablesToTradeSuppliers"
+      }
+    },
+    "non_current": {
+      "비유동부채": {
+        "amount": 16508663000000,
+        "account_id": "ifrs-full_NoncurrentLiabilities"
+      },
+      "장기차입금": {
+        "amount": 3724850000000,
+        "account_id": "ifrs-full_NoncurrentPortionOfNoncurrentLoansReceived"
+      }
+    },
+    "total": 92228115000000
+  },
+  "equity": {
+    "items": {
+      "자본금": {
+        "amount": 897514000000,
+        "account_id": "ifrs-full_IssuedCapital"
+      },
+      "이익잉여금": {
+        "amount": 346652238000000,
+        "account_id": "ifrs-full_RetainedEarnings"
+      }
+    },
+    "total": 363677865000000
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/*.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "final_dashboard.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/quarterly_data",
+      "dest": "/api/quarterly_data.py"
+    },
+    {
+      "src": "/api/cashflow_data",
+      "dest": "/api/cashflow_data.py"
+    },
+    {
+      "src": "/api/balance_sheet",
+      "dest": "/api/balance_sheet.py"
+    },
+    {
+      "src": "/api/company_data",
+      "dest": "/api/company_data.py"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/",
+      "dest": "/final_dashboard.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}

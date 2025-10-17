@@ -1,0 +1,82 @@
+[
+  {
+    "year": 2015,
+    "revenue": 5328492268366,
+    "operating_profit": 684095164351,
+    "cost_of_sales": 2226175065424,
+    "selling_admin_expenses": 2418222038591,
+    "operating_margin": 12.84
+  },
+  {
+    "year": 2016,
+    "revenue": 6094059406134,
+    "operating_profit": 880936617522,
+    "cost_of_sales": 2434038196159,
+    "selling_admin_expenses": 2779084592453,
+    "operating_margin": 14.46
+  },
+  {
+    "year": 2017,
+    "revenue": 6270463509780,
+    "operating_profit": 930348985813,
+    "cost_of_sales": 2460927029869,
+    "selling_admin_expenses": 2879187494098,
+    "operating_margin": 14.84
+  },
+  {
+    "year": 2018,
+    "revenue": 6747536801608,
+    "operating_profit": 1039250135637,
+    "cost_of_sales": 2696414092278,
+    "selling_admin_expenses": 3011872573693,
+    "operating_margin": 15.4
+  },
+  {
+    "year": 2019,
+    "revenue": 7685424230297,
+    "operating_profit": 1176411246904,
+    "cost_of_sales": 2917246274571,
+    "selling_admin_expenses": 3591766708822,
+    "operating_margin": 15.31
+  },
+  {
+    "year": 2020,
+    "revenue": 7844506057131,
+    "operating_profit": 1220864731311,
+    "cost_of_sales": 2962930553558,
+    "selling_admin_expenses": 3660710772262,
+    "operating_margin": 15.56
+  },
+  {
+    "year": 2021,
+    "revenue": 8091511297961,
+    "operating_profit": 1289630423605,
+    "cost_of_sales": 3039883555040,
+    "selling_admin_expenses": 3761997319316,
+    "operating_margin": 15.94
+  },
+  {
+    "year": 2022,
+    "revenue": 7185759184335,
+    "operating_profit": 711122934369,
+    "cost_of_sales": 3168512092765,
+    "selling_admin_expenses": 3306124157201,
+    "operating_margin": 9.9
+  },
+  {
+    "year": 2023,
+    "revenue": 6804839370129,
+    "operating_profit": 486981224742,
+    "cost_of_sales": 3177921081645,
+    "selling_admin_expenses": 3139937063742,
+    "operating_margin": 7.16
+  },
+  {
+    "year": 2024,
+    "revenue": 6811918756741,
+    "operating_profit": 459045912180,
+    "cost_of_sales": 3251086359896,
+    "selling_admin_expenses": 3101786484665,
+    "operating_margin": 6.74
+  }
+]
