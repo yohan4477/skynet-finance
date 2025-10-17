@@ -180,6 +180,126 @@
 			padding: 50px;
 			color: #7f8c8d;
 		}
+
+		.trend-wrapper {
+			display: flex;
+			gap: 20px;
+			align-items: start;
+			margin-bottom: 20px;
+		}
+
+		.selector-wrapper {
+			min-width: 200px;
+		}
+
+		.chart-wrapper {
+			flex: 1;
+		}
+
+		/* 모바일 반응형 디자인 */
+		@media (max-width: 768px) {
+			body {
+				padding: 10px;
+			}
+
+			.container {
+				padding: 20px;
+				border-radius: 15px;
+			}
+
+			header {
+				flex-direction: column;
+				gap: 15px;
+				padding-bottom: 15px;
+			}
+
+			.header-center {
+				order: -1;
+			}
+
+			.search-wrapper {
+				width: 100%;
+				min-width: unset;
+			}
+
+			header > div:last-child {
+				width: 100%;
+				min-width: unset;
+				justify-content: center;
+			}
+
+			h1 {
+				font-size: 24px;
+			}
+
+			.header-center p {
+				font-size: 11px;
+			}
+
+			.controls {
+				flex-direction: column;
+				gap: 10px;
+			}
+
+			.view-btn {
+				width: 100%;
+				font-size: 13px;
+				padding: 10px 15px;
+			}
+
+			.chart-container {
+				height: 300px;
+				padding: 15px;
+			}
+
+			.trend-wrapper {
+				flex-direction: column;
+				gap: 15px;
+			}
+
+			.selector-wrapper {
+				width: 100%;
+				min-width: unset;
+			}
+
+			#companySelect {
+				width: 100%;
+			}
+
+			/* 재무상태표 모바일 */
+			.balance-grid {
+				grid-template-columns: 1fr !important;
+				gap: 15px !important;
+			}
+		}
+
+		@media (max-width: 480px) {
+			body {
+				padding: 5px;
+			}
+
+			.container {
+				padding: 15px;
+			}
+
+			h1 {
+				font-size: 20px;
+			}
+
+			.chart-container {
+				height: 250px;
+				padding: 10px;
+			}
+
+			.view-btn {
+				font-size: 12px;
+				padding: 8px 12px;
+			}
+
+			select {
+				font-size: 13px;
+			}
+		}
 	</style>
 </head>
 <body>
@@ -210,14 +330,14 @@
 
 		<!-- 추이 차트 -->
 		<div id="trendView" class="view-content active">
-			<div style="display: flex; gap: 20px; align-items: start; margin-bottom: 20px;">
-				<div style="min-width: 200px;">
+			<div class="trend-wrapper">
+				<div class="selector-wrapper">
 					<label style="display: block; margin-bottom: 8px; font-weight: bold; color: #2c3e50;">종목 선택</label>
 					<select id="companySelect" onchange="changeCompany()" style="width: 100%; padding: 10px 15px; font-size: 14px; border: 2px solid #667eea; border-radius: 10px; background: white; cursor: pointer;">
 						<option value="">-- 종목을 선택하세요 --</option>
 					</select>
 				</div>
-				<div style="flex: 1;">
+				<div class="chart-wrapper">
 					<div class="chart-container">
 						<canvas id="trendChart"></canvas>
 					</div>
@@ -539,7 +659,7 @@
 			container.innerHTML = `
 				<div style="background: #f8f9fa; padding: 30px; border-radius: 15px;">
 					<h2 style="text-align: center; margin-bottom: 20px;">${companyName} 재무상태표 (${data.year}년)</h2>
-					<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 900px; margin: 0 auto;">
+					<div class="balance-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 900px; margin: 0 auto;">
 						<div>
 							<h3 style="margin-bottom: 15px; color: #2c3e50;">자산</h3>
 							<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px;">
