@@ -1,37 +1,5 @@
 [
   {
-    "year": 2015,
-    "revenue": 200653482000000,
-    "operating_profit": 26413442000000,
-    "cost_of_sales": 123482118000000,
-    "selling_admin_expenses": 50757922000000,
-    "operating_margin": 13.16
-  },
-  {
-    "year": 2016,
-    "revenue": 201866745000000,
-    "operating_profit": 29240672000000,
-    "cost_of_sales": 120277715000000,
-    "selling_admin_expenses": 52348358000000,
-    "operating_margin": 14.49
-  },
-  {
-    "year": 2017,
-    "revenue": 239575376000000,
-    "operating_profit": 53645038000000,
-    "cost_of_sales": 129290661000000,
-    "selling_admin_expenses": 56639677000000,
-    "operating_margin": 22.39
-  },
-  {
-    "year": 2018,
-    "revenue": 243771415000000,
-    "operating_profit": 58886669000000,
-    "cost_of_sales": 132394411000000,
-    "selling_admin_expenses": 52490335000000,
-    "operating_margin": 24.16
-  },
-  {
     "year": 2019,
     "revenue": 230400881000000,
     "operating_profit": 27768509000000,
@@ -65,11 +33,11 @@
   },
   {
     "year": 2023,
-    "revenue": 0,
+    "revenue": 258935494000000,
     "operating_profit": 6566976000000,
     "cost_of_sales": 180388580000000,
     "selling_admin_expenses": 71979938000000,
-    "operating_margin": 0
+    "operating_margin": 2.54
   },
   {
     "year": 2024,

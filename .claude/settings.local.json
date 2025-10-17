@@ -10,7 +10,16 @@
       "Bash(start:*)",
       "Bash(where:*)",
       "Bash(npm install:*)",
-      "Bash(vercel:*)"
+      "Bash(vercel:*)",
+      "Bash(timeout /t 10)",
+      "Bash(set:*)",
+      "Bash(set SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRua2N4eWdxZ3V4Z2l3bnFzcmNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MzMxNjYsImV4cCI6MjA3NjIwOTE2Nn0.w3U5zwSslhB4yi0Xp0C-dRymLYkuA7P1Tv9VXRMdCI4:*)",
+      "Bash(pip install:*)",
+      "Bash(echo:*)",
+      "Bash(copy final_dashboard_supabase.html final_dashboard.html /Y)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ],
     "deny": [],
     "ask": []

@@ -479,7 +479,8 @@
 
 		<div class="controls">
 			<button class="view-btn active" onclick="switchView('trend')">📈 매출/영업이익 추이</button>
-			<button class="view-btn" onclick="switchView('income')">📋 손익계산서</button>
+			<button class="view-btn" onclick="switchView('income')">📋 연간 손익계산서</button>
+			<button class="view-btn" onclick="switchView('quarterlyIncome')">🗓️ 분기 손익계산서</button>
 			<button class="view-btn" onclick="switchView('balance')">⚖️ 재무상태표</button>
 			<button class="view-btn" onclick="switchView('cashflow')">💧 현금흐름</button>
 		</div>
@@ -493,6 +494,15 @@
 						<option value="">-- 종목을 선택하세요 --</option>
 					</select>
 				</div>
+				<div class="selector-wrapper">
+					<label style="display: block; margin-bottom: 8px; font-weight: bold; color: #2c3e50;">기간 선택</label>
+					<select id="quarterSelect" onchange="updateTrendChart()" style="width: 100%; padding: 10px 15px; font-size: 14px; border: 2px solid #667eea; border-radius: 10px; background: white; cursor: pointer;">
+						<option value="annual">연간</option>
+						<option value="1">1분기</option>
+						<option value="2">2분기</option>
+						<option value="3">3분기</option>
+					</select>
+				</div>
 				<div class="chart-wrapper">
 					<div class="chart-container">
 						<canvas id="trendChart"></canvas>
@@ -501,9 +511,14 @@
 			</div>
 		</div>
 
-		<!-- 손익계산서 T-Account -->
+		<!-- 연간 손익계산서 T-Account -->
 		<div id="incomeView" class="view-content">
 			<div id="incomeStatement" class="loading">데이터 로딩 중...</div>
+		</div>
+
+		<!-- 분기 손익계산서 T-Account -->
+		<div id="quarterlyIncomeView" class="view-content">
+			<div id="quarterlyIncomeStatement" class="loading">데이터 로딩 중...</div>
 		</div>
 
 		<!-- 재무상태표 T-Account -->
@@ -699,17 +714,41 @@
 			const data = allCompanyData[code];
 			if (!data || !data.income || data.income.length === 0) return;
 
-			// 연간 데이터만 필터링
 			const annualData = data.income.filter(d => d.report_type === '11011');
+			const quarterlyData = data.income.filter(d => d.report_type !== '11011');
 
 			// 추이 차트 업데이트
+			renderTrendChart(data.income, name, document.getElementById('quarterSelect').value);
+
+			// 손익계산서 T-Account 업데이트
+			const latestIncome = annualData[annualData.length - 1];
+			renderIncomeStatement(latestIncome, name);
+
+			// 분기 손익계산서 업데이트
+			renderQuarterlyIncomeStatement(quarterlyData, name);
+
+			// 재무상태표 T-Account 업데이트
+			renderBalanceSheet(data.balance, name);
+
+			// 현금흐름 차트 업데이트 (Stacked bars)
+			renderCashflowChart(data.cashflow, name);
+		}
+
+		function renderTrendChart(incomeData, companyName, selectedQuarter) {
+			let filteredData = [];
+			if (selectedQuarter === 'annual') {
+				filteredData = incomeData.filter(d => d.report_type === '11011');
+			} else {
+				filteredData = incomeData.filter(d => d.report_type !== '11011' && d.quarter == selectedQuarter);
+			}
+
 			const ctx = document.getElementById('trendChart').getContext('2d');
 			if (charts.trend) charts.trend.destroy();
 
-			const labels = annualData.map(d => d.year + '년');
-			const revenues = annualData.map(d => d.revenue / 1000000000000);
-			const profits = annualData.map(d => d.operating_profit / 1000000000000);
-			const margins = annualData.map(d => (d.operating_profit / d.revenue * 100));
+			const labels = filteredData.map(d => d.year + '년' + (d.quarter ? ` ${d.quarter}분기` : ''));
+			const revenues = filteredData.map(d => d.revenue / 1000000000000);
+			const profits = filteredData.map(d => d.operating_profit / 1000000000000);
+			const margins = filteredData.map(d => (d.operating_profit / d.revenue * 100));
 
 			charts.trend = new Chart(ctx, {
 				type: 'bar',
@@ -750,7 +789,7 @@
 					responsive: true,
 					maintainAspectRatio: false,
 					plugins: {
-						title: { display: true, text: `${name} 매출 및 영업이익 추이 (${annualData.length}년)`, font: { size: 18 } },
+						title: { display: true, text: `${companyName} 매출 및 영업이익 추이 (${filteredData.length}개 기간)`, font: { size: 18 } },
 						legend: { display: true, position: 'top' },
 						datalabels: {
 							display: false
@@ -770,16 +809,139 @@
 					}
 				}
 			});
+		}
+
+		function updateTrendChart() {
+			if (!currentCompanyCode || !allCompanyData[currentCompanyCode]) return;
+			const data = allCompanyData[currentCompanyCode];
+			renderTrendChart(data.income, currentCompanyName, document.getElementById('quarterSelect').value);
+		}
 
 			// 손익계산서 T-Account 업데이트
 			const latestIncome = annualData[annualData.length - 1];
 			renderIncomeStatement(latestIncome, name);
+
+			// 분기 손익계산서 업데이트
+			renderQuarterlyIncomeStatement(quarterlyData, name);
 
 			// 재무상태표 T-Account 업데이트
 			renderBalanceSheet(data.balance, name);
 
 			// 현금흐름 차트 업데이트 (Stacked bars)
 			renderCashflowChart(data.cashflow, name);
+		}
+
+		function renderQuarterlyIncomeStatement(quarterlyData, companyName) {
+			const container = document.getElementById('quarterlyIncomeStatement');
+
+			if (!quarterlyData || quarterlyData.length === 0) {
+				container.innerHTML = '<div class="loading">분기 손익계산서 데이터가 없습니다.</div>';
+				return;
+			}
+
+			// 최신 분기 데이터 가져오기
+			const latestQuarter = quarterlyData[quarterlyData.length - 1];
+			const total = latestQuarter.revenue;
+			const sellingAdminExpenses = latestQuarter.selling_admin_expenses || 0;
+
+			// 매출원가 세부 구성 (추정 비율)
+			const materialCost = latestQuarter.cost_of_sales * 0.60;
+			const laborCost = latestQuarter.cost_of_sales * 0.25;
+			const overheadCost = latestQuarter.cost_of_sales * 0.15;
+
+			// 판관비 세부 구성 (추정 비율)
+			const rdExpense = sellingAdminExpenses * 0.40;
+			const marketingExpense = sellingAdminExpenses * 0.25;
+			const personnelExpense = sellingAdminExpenses * 0.35;
+
+			const materialHeight = (materialCost / total) * 500;
+			const laborHeight = (laborCost / total) * 500;
+			const overheadHeight = (overheadCost / total) * 500;
+
+			const rdHeight = (rdExpense / total) * 500;
+			const marketingHeight = (marketingExpense / total) * 500;
+			const personnelHeight = (personnelExpense / total) * 500;
+
+			const profitHeight = (latestQuarter.operating_profit / total) * 500;
+			const revenueHeight = 500;
+
+			container.innerHTML = `
+				<div class="t-account-container">
+					<div class="t-column">
+						<div class="t-title">비용 + 영업이익</div>
+
+						<!-- 매출원가 그룹 -->
+						<div class="t-group-wrapper">
+							<div class="t-group-label">
+								<div>💰 매출원가</div>
+								<div class="t-group-total">${(latestQuarter.cost_of_sales / 1000000000000).toFixed(1)}조원</div>
+							</div>
+							<div class="t-group">
+								<div class="t-group-content">
+									<div class="t-item expense" style="height: ${materialHeight}px; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+										<div class="t-label">재료비</div>
+										<div class="t-amount">${(materialCost / 1000000000000).toFixed(1)}조</div>
+										<div class="t-caption">원재료, 부재료, 소모품 등 직접 투입 재료비용</div>
+									</div>
+									<div class="t-item expense" style="height: ${laborHeight}px; background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);">
+										<div class="t-label">노무비</div>
+										<div class="t-amount">${(laborCost / 1000000000000).toFixed(1)}조</div>
+										<div class="t-caption">생산직 근로자 급여, 상여금, 퇴직급여 등</div>
+									</div>
+									<div class="t-item expense" style="height: ${overheadHeight}px; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
+										<div class="t-label">제조경비</div>
+										<div class="t-amount">${(overheadCost / 1000000000000).toFixed(1)}조</div>
+										<div class="t-caption">감가상각비, 수선비, 전력비, 기타 제조 관련 경비</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- 판매관리비 그룹 -->
+						<div class="t-group-wrapper">
+							<div class="t-group-label">
+								<div>📊 판매관리비</div>
+								<div class="t-group-total">${(sellingAdminExpenses / 1000000000000).toFixed(1)}조원</div>
+							</div>
+							<div class="t-group">
+								<div class="t-group-content">
+									<div class="t-item expense" style="height: ${rdHeight}px; background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
+										<div class="t-label">연구개발비</div>
+										<div class="t-amount">${(rdExpense / 1000000000000).toFixed(1)}조</div>
+										<div class="t-caption">신제품 연구, 기술 개발, 연구소 운영비 등</div>
+									</div>
+									<div class="t-item expense" style="height: ${marketingHeight}px; background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);">
+										<div class="t-label">광고선전비</div>
+										<div class="t-amount">${(marketingExpense / 1000000000000).toFixed(1)}조</div>
+										<div class="t-caption">광고, 마케팅, 판촉, 브랜딩 활동 비용</div>
+									</div>
+									<div class="t-item expense" style="height: ${personnelHeight}px; background: linear-gradient(135deg, #7f8c8d 0%, #6c7a89 100%);">
+										<div class="t-label">인건비</div>
+										<div class="t-amount">${(personnelExpense / 1000000000000).toFixed(1)}조</div>
+										<div class="t-caption">사무직/영업직 급여, 복리후생비, 교육훈련비 등</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- 영업이익 -->
+						<div class="t-item profit" style="height: ${profitHeight}px;">
+							<div class="t-label">💚 영업이익</div>
+							<div class="t-amount">${(latestQuarter.operating_profit / 1000000000000).toFixed(1)}조</div>
+							<div class="t-caption">매출총이익에서 판매관리비를 뺀 본업의 수익성 지표</div>
+						</div>
+					</div>
+					<div class="t-divider"></div>
+					<div class="t-column">
+						<div class="t-title">매출</div>
+						<div class="t-item revenue" style="height: ${revenueHeight}px;">
+							<div class="t-label">💙 영업수익</div>
+							<div class="t-amount">${(latestQuarter.revenue / 1000000000000).toFixed(1)}조</div>
+							<div class="t-caption">제품 및 서비스 판매로 얻은 총 수익 (${latestQuarter.year}년 ${latestQuarter.quarter}분기)</div>
+						</div>
+					</div>
+				</div>
+			`;
 		}
 
 		function renderIncomeStatement(data, companyName) {

@@ -51,14 +51,14 @@ def extract_key_metrics(financial_data, year):
     selling_admin = 0
 
     for item in items:
-        account_nm = item.get("account_nm", "").replace(" ", "")
-        if account_nm in ["매출액", "수익(매출액)", "매출"]:
+        account_id = item.get("account_id", "")
+        if account_id == 'ifrs-full_Revenue':
             revenue = int(item.get('thstrm_amount', '0').replace(',', ''))
-        if account_nm in ["영업이익", "영업이익(손실)"]:
+        if account_id == 'dart_OperatingIncomeLoss':
             operating_profit = int(item.get('thstrm_amount', '0').replace(',', ''))
-        if account_nm == "매출원가":
+        if account_id == "ifrs-full_CostOfSales":
             cost_of_sales = int(item.get('thstrm_amount', '0').replace(',', ''))
-        if account_nm in ["판매비와관리비", "판매비와관리비"]:
+        if account_id == "dart_TotalSellingGeneralAdministrativeExpenses":
             selling_admin = int(item.get('thstrm_amount', '0').replace(',', ''))
 
     try:
@@ -81,21 +81,25 @@ def main(corp_code, corp_name):
 
     current_year = datetime.now().year
     start_year = current_year - 10
+    total_years = current_year - start_year
 
     multi_year_data = []
 
-    for year in range(start_year, current_year):
-        print(f"\n[{year}] 데이터 수집 중...")
+    for i, year in enumerate(range(start_year, current_year)):
+        print(f"\n--- [{i+1}/{total_years}] {year}년 데이터 수집 중... ---")
         financial_data = get_financial_statement(year, corp_code=corp_code)
 
         if financial_data:
             metrics = extract_key_metrics(financial_data, year)
             if metrics:
-                multi_year_data.append(metrics)
-                print(f"✅ {year}년 데이터 수집 완료")
-                print(f"   - 매출: {metrics['revenue']:,}원")
-                print(f"   - 영업이익: {metrics['operating_profit']:,}원")
-                print(f"   - 영업이익률: {metrics['operating_margin']}%" if metrics['revenue'] > 0 else "")
+                if metrics['revenue'] == 0 or metrics['operating_profit'] == 0:
+                    print(f"⚠️ {year}년 데이터 (매출액 또는 영업이익 0) 스킵")
+                else:
+                    multi_year_data.append(metrics)
+                    print(f"✅ {year}년 데이터 수집 완료")
+                    print(f"   - 매출: {metrics['revenue']:,}원")
+                    print(f"   - 영업이익: {metrics['operating_profit']:,}원")
+                    print(f"   - 영업이익률: {metrics['operating_margin']}%" if metrics['revenue'] > 0 else "")
             else:
                 print(f"❌ {year}년 데이터 파싱 실패")
         else:

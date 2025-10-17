@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>재무제표 분석 대시보드</title>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+
+		body {
+			font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			min-height: 100vh;
+			padding: 20px;
+		}
+
+		.container {
+			max-width: 1600px;
+			margin: 0 auto;
+			background: white;
+			border-radius: 20px;
+			padding: 40px;
+			box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+		}
+
+		header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 30px;
+			border-bottom: 3px solid #667eea;
+			padding-bottom: 20px;
+			gap: 30px;
+		}
+
+		.header-center {
+			flex: 1;
+			text-align: center;
+		}
+
+		.search-wrapper {
+			position: relative;
+			min-width: 280px;
+		}
+
+		#companySearch {
+			width: 100%;
+			padding: 12px 40px 12px 15px;
+			font-size: 14px;
+			border: 2px solid #667eea;
+			border-radius: 50px;
+			outline: none;
+			transition: all 0.3s;
+		}
+
+		#companySearch:focus {
+			box-shadow: 0 0 15px rgba(102, 126, 234, 0.4);
+			border-color: #764ba2;
+		}
+
+		.search-icon {
+			position: absolute;
+			right: 15px;
+			top: 50%;
+			transform: translateY(-50%);
+			color: #667eea;
+			font-size: 18px;
+			pointer-events: none;
+		}
+
+		.search-results {
+			position: absolute;
+			top: 100%;
+			left: 0;
+			right: 0;
+			background: white;
+			border: 2px solid #667eea;
+			border-radius: 15px;
+			margin-top: 8px;
+			max-height: 400px;
+			overflow-y: auto;
+			box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+			z-index: 1000;
+			display: none;
+		}
+
+		.search-results.show {
+			display: block;
+		}
+
+		.search-result-item {
+			padding: 12px 20px;
+			cursor: pointer;
+			border-bottom: 1px solid #ecf0f1;
+			transition: all 0.2s;
+		}
+
+		.search-result-item:last-child {
+			border-bottom: none;
+		}
+
+		.search-result-item:hover {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+		}
+
+		.company-name {
+			font-weight: bold;
+			font-size: 15px;
+		}
+
+		.company-info {
+			font-size: 12px;
+			color: #7f8c8d;
+			margin-top: 3px;
+		}
+
+		.search-result-item:hover .company-info {
+			color: rgba(255,255,255,0.8);
+		}
+
+		.no-results {
+			padding: 20px;
+			text-align: center;
+			color: #7f8c8d;
+		}
+
+		h1 {
+			color: #2c3e50;
+			font-size: 32px;
+			margin-bottom: 10px;
+		}
+
+		.controls {
+			display: flex;
+			justify-content: center;
+			gap: 20px;
+			margin-bottom: 30px;
+			flex-wrap: wrap;
+		}
+
+		select, .view-btn {
+			padding: 12px 25px;
+			font-size: 14px;
+			font-weight: bold;
+			border: 2px solid #667eea;
+			border-radius: 50px;
+			cursor: pointer;
+			background: white;
+			color: #2c3e50;
+			transition: all 0.3s;
+		}
+
+		.view-btn.active {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+		}
+
+		.view-content { display: none; }
+		.view-content.active { display: block; animation: fadeIn 0.5s; }
+
+		@keyframes fadeIn {
+			from { opacity: 0; transform: translateY(20px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+
+		.chart-container {
+			height: 500px;
+			margin-bottom: 30px;
+			background: #f8f9fa;
+			padding: 20px;
+			border-radius: 15px;
+		}
+
+		.loading {
+			text-align: center;
+			padding: 50px;
+			color: #7f8c8d;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<header>
+			<div class="search-wrapper">
+				<input type="text" id="companySearch" placeholder="🔍 종목 검색 (예: 삼성전자, SK하이닉스...)" autocomplete="off">
+				<span class="search-icon">🔍</span>
+				<div id="searchResults" class="search-results"></div>
+			</div>
+			<div class="header-center">
+				<h1>📊 재무제표 분석 대시보드</h1>
+				<p style="color: #7f8c8d;">Financial Statement Analysis Dashboard - Powered by Supabase</p>
+			</div>
+			<div style="min-width: 280px; display: flex; justify-content: flex-end;">
+				<button onclick="goToIndex()" style="padding: 12px 25px; font-size: 14px; font-weight: bold; border: 2px solid #667eea; border-radius: 50px; cursor: pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; transition: all 0.3s;">
+					📋 종목 리스트
+				</button>
+			</div>
+		</header>
+
+		<div class="controls">
+			<button class="view-btn active" onclick="switchView('trend')">📈 매출/영업이익 추이</button>
+			<button class="view-btn" onclick="switchView('income')">📋 손익계산서</button>
+			<button class="view-btn" onclick="switchView('balance')">⚖️ 재무상태표</button>
+			<button class="view-btn" onclick="switchView('cashflow')">💧 현금흐름</button>
+		</div>
+
+		<!-- 추이 차트 -->
+		<div id="trendView" class="view-content active">
+			<div style="display: flex; gap: 20px; align-items: start; margin-bottom: 20px;">
+				<div style="min-width: 200px;">
+					<label style="display: block; margin-bottom: 8px; font-weight: bold; color: #2c3e50;">종목 선택</label>
+					<select id="companySelect" onchange="changeCompany()" style="width: 100%; padding: 10px 15px; font-size: 14px; border: 2px solid #667eea; border-radius: 10px; background: white; cursor: pointer;">
+						<option value="">-- 종목을 선택하세요 --</option>
+					</select>
+				</div>
+				<div style="flex: 1;">
+					<div class="chart-container">
+						<canvas id="trendChart"></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 손익계산서 -->
+		<div id="incomeView" class="view-content">
+			<div id="incomeStatement" class="loading">데이터 로딩 중...</div>
+		</div>
+
+		<!-- 재무상태표 -->
+		<div id="balanceView" class="view-content">
+			<div id="balanceSheet" class="loading">데이터 로딩 중...</div>
+		</div>
+
+		<!-- 현금흐름 -->
+		<div id="cashflowView" class="view-content">
+			<div class="chart-container">
+				<canvas id="cashflowChart"></canvas>
+			</div>
+		</div>
+
+		<div style="text-align: center; margin-top: 30px; color: #7f8c8d; font-size: 14px;">
+			<p>📡 데이터 출처: 금융감독원 전자공시시스템 (DART) via Supabase</p>
+		</div>
+	</div>
+
+	<script>
+		// Supabase 클라이언트 초기화
+		const SUPABASE_URL = 'https://tnkcxygqguxgiwnqsrcd.supabase.co';
+		const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRua2N4eWdxZ3V4Z2l3bnFzcmNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MzMxNjYsImV4cCI6MjA3NjIwOTE2Nn0.w3U5zwSslhB4yi0Xp0C-dRymLYkuA7P1Tv9VXRMdCI4';
+		const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+		let charts = {};
+		let companies = [];
+		let currentCompanyCode = null;
+		let currentCompanyName = null;
+		let allCompanyData = {};
+
+		Chart.register(ChartDataLabels);
+
+		// 기업 목록 로드
+		async function loadCompanies() {
+			const { data, error } = await supabase
+				.from('companies')
+				.select('*')
+				.order('corp_name');
+
+			if (error) {
+				console.error('기업 목록 로드 실패:', error);
+				return [];
+			}
+
+			return data.map(company => ({
+				name: company.corp_name,
+				code: company.corp_code,
+				stock: company.stock_code,
+				sector: company.sector
+			}));
+		}
+
+		// 손익계산서 데이터 로드
+		async function loadIncomeStatements(corpCode) {
+			const { data, error } = await supabase
+				.from('income_statements')
+				.select('*')
+				.eq('corp_code', corpCode)
+				.eq('report_type', '11011') // 연간 보고서
+				.order('year');
+
+			if (error) {
+				console.error('손익계산서 로드 실패:', error);
+				return [];
+			}
+
+			return data.map(d => ({
+				year: d.year,
+				revenue: d.revenue || 0,
+				cost_of_sales: d.cost_of_sales || 0,
+				gross_profit: d.gross_profit || 0,
+				selling_admin_expenses: d.selling_admin_expenses || 0,
+				operating_profit: d.operating_profit || 0,
+				operating_margin: d.operating_margin || 0
+			}));
+		}
+
+		// 재무상태표 데이터 로드
+		async function loadBalanceSheets(corpCode) {
+			const { data, error } = await supabase
+				.from('balance_sheets')
+				.select('*')
+				.eq('corp_code', corpCode)
+				.eq('report_type', '11011')
+				.order('year', { ascending: false })
+				.limit(1);
+
+			if (error) {
+				console.error('재무상태표 로드 실패:', error);
+				return null;
+			}
+
+			return data[0] || null;
+		}
+
+		// 현금흐름 데이터 로드
+		async function loadCashFlows(corpCode) {
+			const { data, error } = await supabase
+				.from('cash_flows')
+				.select('*')
+				.eq('corp_code', corpCode)
+				.eq('report_type', '11011')
+				.order('year');
+
+			if (error) {
+				console.error('현금흐름 로드 실패:', error);
+				return [];
+			}
+
+			return data.map(d => ({
+				period: d.year + '년',
+				operating_cf: d.operating_cash_flow || 0,
+				investing_cf: d.investing_cash_flow || 0,
+				financing_cf: d.financing_cash_flow || 0
+			}));
+		}
+
+		// 검색 기능
+		const searchInput = document.getElementById('companySearch');
+		const searchResults = document.getElementById('searchResults');
+
+		searchInput.addEventListener('input', (e) => {
+			const query = e.target.value.trim().toLowerCase();
+
+			if (query.length === 0) {
+				searchResults.classList.remove('show');
+				return;
+			}
+
+			const filtered = companies.filter(company =>
+				company.name.toLowerCase().includes(query) ||
+				company.stock.includes(query) ||
+				company.sector.toLowerCase().includes(query)
+			);
+
+			if (filtered.length === 0) {
+				searchResults.innerHTML = '<div class="no-results">검색 결과가 없습니다</div>';
+				searchResults.classList.add('show');
+				return;
+			}
+
+			searchResults.innerHTML = filtered.map(company => `
+				<div class="search-result-item" onclick="selectCompany('${company.code}', '${company.name}')">
+					<div class="company-name">${company.name}</div>
+					<div class="company-info">${company.stock} | ${company.sector}</div>
+				</div>
+			`).join('');
+
+			searchResults.classList.add('show');
+		});
+
+		// 검색창 외부 클릭 시 결과 닫기
+		document.addEventListener('click', (e) => {
+			if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+				searchResults.classList.remove('show');
+			}
+		});
+
+		// 종목 선택
+		async function selectCompany(code, name) {
+			searchResults.classList.remove('show');
+			searchInput.value = name;
+			currentCompanyCode = code;
+			currentCompanyName = name;
+
+			// 드롭다운도 해당 종목으로 설정
+			const select = document.getElementById('companySelect');
+			select.value = code;
+
+			// 데이터 로드
+			console.log(`${name} 데이터 로딩 중...`);
+			const incomeData = await loadIncomeStatements(code);
+			const balanceData = await loadBalanceSheets(code);
+			const cashflowData = await loadCashFlows(code);
+
+			if (incomeData.length === 0) {
+				alert(`${name} 데이터가 없습니다.`);
+				return;
+			}
+
+			allCompanyData[code] = {
+				income: incomeData,
+				balance: balanceData,
+				cashflow: cashflowData
+			};
+
+			// 차트 업데이트
+			updateChartsForCompany(code, name);
+		}
+
+		function updateChartsForCompany(code, name) {
+			const data = allCompanyData[code];
+			if (!data || !data.income || data.income.length === 0) return;
+
+			// 추이 차트 업데이트
+			const ctx = document.getElementById('trendChart').getContext('2d');
+			if (charts.trend) charts.trend.destroy();
+
+			const labels = data.income.map(d => d.year + '년');
+			const revenues = data.income.map(d => d.revenue / 1000000000000);
+			const profits = data.income.map(d => d.operating_profit / 1000000000000);
+			const margins = data.income.map(d => (d.operating_profit / d.revenue * 100));
+
+			charts.trend = new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: labels,
+					datasets: [{
+						label: '매출 (조원)',
+						data: revenues,
+						backgroundColor: 'rgba(102, 126, 234, 0.7)',
+						borderColor: 'rgba(102, 126, 234, 1)',
+						borderWidth: 2,
+						borderRadius: 8,
+						yAxisID: 'y'
+					}, {
+						label: '영업이익 (조원)',
+						data: profits,
+						type: 'line',
+						borderColor: 'rgba(255, 99, 132, 1)',
+						backgroundColor: 'rgba(255, 99, 132, 0.2)',
+						borderWidth: 3,
+						pointRadius: 6,
+						tension: 0.4,
+						yAxisID: 'y'
+					}, {
+						label: '영업이익률 (%)',
+						data: margins,
+						type: 'line',
+						borderColor: 'rgba(46, 204, 113, 1)',
+						backgroundColor: 'rgba(46, 204, 113, 0.1)',
+						borderWidth: 3,
+						borderDash: [5, 5],
+						pointRadius: 8,
+						tension: 0.4,
+						yAxisID: 'y1'
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						title: { display: true, text: `${name} 매출 및 영업이익 추이`, font: { size: 18 } },
+						legend: { display: true, position: 'top' },
+						datalabels: {
+							display: false
+						}
+					},
+					scales: {
+						y: {
+							beginAtZero: true,
+							title: { display: true, text: '금액 (조원)' }
+						},
+						y1: {
+							position: 'right',
+							beginAtZero: true,
+							title: { display: true, text: '영업이익률 (%)' },
+							grid: { drawOnChartArea: false }
+						}
+					}
+				}
+			});
+
+			// 손익계산서 업데이트
+			const latestIncome = data.income[data.income.length - 1];
+			renderIncomeStatement(latestIncome, name);
+
+			// 재무상태표 업데이트
+			renderBalanceSheet(data.balance, name);
+
+			// 현금흐름 차트 업데이트
+			renderCashflowChart(data.cashflow, name);
+		}
+
+		function renderIncomeStatement(data, companyName) {
+			if (!data) return;
+
+			const container = document.getElementById('incomeStatement');
+			container.innerHTML = `
+				<div style="background: #f8f9fa; padding: 30px; border-radius: 15px;">
+					<h2 style="text-align: center; margin-bottom: 20px;">${companyName} 손익계산서 (${data.year}년)</h2>
+					<div style="max-width: 600px; margin: 0 auto;">
+						<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px; border-left: 5px solid #3498db;">
+							<strong>매출:</strong> ${(data.revenue / 1000000000000).toFixed(1)}조원
+						</div>
+						<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px; border-left: 5px solid #e74c3c;">
+							<strong>매출원가:</strong> ${(data.cost_of_sales / 1000000000000).toFixed(1)}조원
+						</div>
+						<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px; border-left: 5px solid #e67e22;">
+							<strong>판매관리비:</strong> ${(data.selling_admin_expenses / 1000000000000).toFixed(1)}조원
+						</div>
+						<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px; border-left: 5px solid #2ecc71;">
+							<strong>영업이익:</strong> ${(data.operating_profit / 1000000000000).toFixed(1)}조원 (${data.operating_margin.toFixed(1)}%)
+						</div>
+					</div>
+				</div>
+			`;
+		}
+
+		function renderBalanceSheet(data, companyName) {
+			const container = document.getElementById('balanceSheet');
+
+			if (!data) {
+				container.innerHTML = '<div class="loading">재무상태표 데이터가 없습니다.</div>';
+				return;
+			}
+
+			container.innerHTML = `
+				<div style="background: #f8f9fa; padding: 30px; border-radius: 15px;">
+					<h2 style="text-align: center; margin-bottom: 20px;">${companyName} 재무상태표 (${data.year}년)</h2>
+					<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 900px; margin: 0 auto;">
+						<div>
+							<h3 style="margin-bottom: 15px; color: #2c3e50;">자산</h3>
+							<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px;">
+								<strong>총자산:</strong> ${(data.total_assets / 1000000000000).toFixed(1)}조원
+							</div>
+							<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px;">
+								<strong>유동자산:</strong> ${(data.current_assets / 1000000000000).toFixed(1)}조원
+							</div>
+							<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px;">
+								<strong>비유동자산:</strong> ${(data.non_current_assets / 1000000000000).toFixed(1)}조원
+							</div>
+						</div>
+						<div>
+							<h3 style="margin-bottom: 15px; color: #2c3e50;">부채 + 자본</h3>
+							<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px;">
+								<strong>총부채:</strong> ${(data.total_liabilities / 1000000000000).toFixed(1)}조원
+							</div>
+							<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px;">
+								<strong>유동부채:</strong> ${(data.current_liabilities / 1000000000000).toFixed(1)}조원
+							</div>
+							<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px;">
+								<strong>자본:</strong> ${(data.total_equity / 1000000000000).toFixed(1)}조원
+							</div>
+						</div>
+					</div>
+				</div>
+			`;
+		}
+
+		function renderCashflowChart(cashflowData, companyName) {
+			const ctx = document.getElementById('cashflowChart').getContext('2d');
+			if (charts.cashflow) charts.cashflow.destroy();
+
+			if (!cashflowData || cashflowData.length === 0) {
+				document.getElementById('cashflowView').querySelector('.chart-container').innerHTML =
+					'<div class="loading">현금흐름 데이터가 없습니다.</div>';
+				return;
+			}
+
+			const labels = cashflowData.map(d => d.period);
+			const operatingCF = cashflowData.map(d => d.operating_cf / 1000000000000);
+			const investingCF = cashflowData.map(d => d.investing_cf / 1000000000000);
+			const financingCF = cashflowData.map(d => d.financing_cf / 1000000000000);
+
+			charts.cashflow = new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: labels,
+					datasets: [
+						{
+							label: '영업활동',
+							data: operatingCF,
+							backgroundColor: 'rgba(54, 162, 235, 0.7)'
+						},
+						{
+							label: '투자활동',
+							data: investingCF,
+							backgroundColor: 'rgba(255, 99, 132, 0.7)'
+						},
+						{
+							label: '재무활동',
+							data: financingCF,
+							backgroundColor: 'rgba(75, 192, 192, 0.7)'
+						}
+					]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						title: { display: true, text: `${companyName} 현금흐름`, font: { size: 18 } },
+						datalabels: { display: false }
+					},
+					scales: {
+						y: {
+							title: { display: true, text: '금액 (조원)' }
+						}
+					}
+				}
+			});
+		}
+
+		function populateCompanySelect() {
+			const select = document.getElementById('companySelect');
+			companies.forEach(company => {
+				const option = document.createElement('option');
+				option.value = company.code;
+				option.textContent = `${company.name} (${company.stock})`;
+				select.appendChild(option);
+			});
+		}
+
+		function changeCompany() {
+			const select = document.getElementById('companySelect');
+			const selectedCode = select.value;
+			if (!selectedCode) return;
+
+			const company = companies.find(c => c.code === selectedCode);
+			if (company) {
+				selectCompany(company.code, company.name);
+			}
+		}
+
+		function switchView(view) {
+			document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+			event.target.classList.add('active');
+			document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
+			document.getElementById(view + 'View').classList.add('active');
+		}
+
+		function goToIndex() {
+			window.location.href = 'index.html';
+		}
+
+		// 데이터 로드
+		async function loadData() {
+			try {
+				// 기업 목록 로드
+				companies = await loadCompanies();
+				populateCompanySelect();
+
+				// 기본 삼성전자 데이터 로드
+				const samsung = companies.find(c => c.code === '00126380');
+				if (samsung) {
+					searchInput.value = samsung.name;
+					await selectCompany(samsung.code, samsung.name);
+				}
+			} catch (error) {
+				console.error('데이터 로드 실패:', error);
+			}
+		}
+
+		window.addEventListener('load', loadData);
+	</script>
+</body>
+</html>

@@ -31,21 +31,6 @@ def get_financial_statement(year, report_code="11011", corp_code=SAMSUNG_CORP_CO
     except Exception as e:
         print(f"Error fetching {year} report {report_code}: {e}")
         return None
-    url = f"{BASE_URL}/fnlttSinglAcntAll.json"
-    params = {
-        "crtfc_key": API_KEY,
-        "corp_code": SAMSUNG_CORP_CODE,
-        "bsns_year": str(year),
-        "reprt_code": report_code,
-        "fs_div": "CFS"  # 연결재무제표
-    }
-
-    try:
-        response = requests.get(url, params=params, timeout=10)
-        return response.json()
-    except Exception as e:
-        print(f"Error fetching {year} report {report_code}: {e}")
-        return None
 
 def extract_key_metrics(financial_data, year, quarter=None):
     """주요 지표 추출"""
@@ -88,19 +73,30 @@ def main(corp_code, corp_name):
 
     current_year = datetime.now().year
     start_year = current_year - 10
+    
+    # Calculate total iterations for progress bar
+    total_years_to_fetch = (current_year + 1) - start_year
+    total_quarters_to_fetch = total_years_to_fetch * len(report_codes)
+    
+    quarter_count = 0 # Initialize counter for progress bar
+
     for year in range(start_year, current_year + 1):
         for quarter_name, report_code in report_codes.items():
-            print(f"\n[{year}년 {quarter_name}] 데이터 수집 중...")
+            quarter_count += 1
+            print(f"\n--- [{quarter_count}/{total_quarters_to_fetch}] {year}년 {quarter_name} 데이터 수집 중... ---")
             financial_data = get_financial_statement(year, report_code, corp_code=corp_code)
 
             if financial_data:
                 quarter_num = int(quarter_name[0])
                 metrics = extract_key_metrics(financial_data, year, quarter_num)
                 if metrics:
-                    quarterly_data.append(metrics)
-                    print(f"✅ {year}년 {quarter_name} 데이터 수집 완료")
-                    print(f"   - 매출: {metrics['revenue']:,}원")
-                    print(f"   - 영업이익: {metrics['operating_profit']:,}원")
+                    if metrics['revenue'] == 0 or metrics['operating_profit'] == 0:
+                        print(f"⚠️ {year}년 {quarter_name} 데이터 (매출액 또는 영업이익 0) 스킵")
+                    else:
+                        quarterly_data.append(metrics)
+                        print(f"✅ {year}년 {quarter_name} 데이터 수집 완료")
+                        print(f"   - 매출: {metrics['revenue']:,}원")
+                        print(f"   - 영업이익: {metrics['operating_profit']:,}원")
 
             time.sleep(0.5)
 
