@@ -140,6 +140,16 @@ def migrate_income_statements(supabase: Client):
     cursor = conn.cursor()
 
     try:
+        # 먼저 기존 데이터 삭제 (데이터가 있는 3개 기업만)
+        companies_to_update = ["00126380", "00164742", "00356370"]  # 삼성전자, LG에너지솔루션, KB금융
+
+        print("   🗑️  기존 데이터 삭제 중...")
+        for corp_code in companies_to_update:
+            try:
+                supabase.table("income_statements").delete().eq('corp_code', corp_code).execute()
+            except Exception as e:
+                print(f"   ⚠️  {corp_code} 기존 데이터 삭제 실패 (데이터 없을 수 있음): {e}")
+
         cursor.execute("""
             SELECT corp_code, year, report_type, revenue, cost_of_sales,
                    gross_profit, selling_admin_expenses, operating_profit, operating_margin
@@ -170,9 +180,10 @@ def migrate_income_statements(supabase: Client):
         batch_size = 100
         total = len(data)
 
+        print("   📤 새 데이터 업로드 중...")
         for i in range(0, total, batch_size):
             batch = data[i:i+batch_size]
-            supabase.table("income_statements").upsert(batch).execute()
+            supabase.table("income_statements").insert(batch).execute()
             print(f"   진행: {min(i+batch_size, total)}/{total}")
 
         print(f"   ✅ {total}개 손익계산서 레코드 마이그레이션 완료")
@@ -196,6 +207,16 @@ def migrate_balance_sheets(supabase: Client):
     cursor = conn.cursor()
 
     try:
+        # 먼저 기존 데이터 삭제 (데이터가 있는 3개 기업만)
+        companies_to_update = ["00126380", "00164742", "00356370"]  # 삼성전자, LG에너지솔루션, KB금융
+
+        print("   🗑️  기존 데이터 삭제 중...")
+        for corp_code in companies_to_update:
+            try:
+                supabase.table("balance_sheets").delete().eq('corp_code', corp_code).execute()
+            except Exception as e:
+                print(f"   ⚠️  {corp_code} 기존 데이터 삭제 실패 (데이터 없을 수 있음): {e}")
+
         cursor.execute("""
             SELECT corp_code, year, report_type, total_assets, current_assets,
                    non_current_assets, total_liabilities, current_liabilities,
@@ -228,9 +249,10 @@ def migrate_balance_sheets(supabase: Client):
         batch_size = 100
         total = len(data)
 
+        print("   📤 새 데이터 업로드 중...")
         for i in range(0, total, batch_size):
             batch = data[i:i+batch_size]
-            supabase.table("balance_sheets").upsert(batch).execute()
+            supabase.table("balance_sheets").insert(batch).execute()
             print(f"   진행: {min(i+batch_size, total)}/{total}")
 
         print(f"   ✅ {total}개 재무상태표 레코드 마이그레이션 완료")
@@ -254,6 +276,16 @@ def migrate_cash_flows(supabase: Client):
     cursor = conn.cursor()
 
     try:
+        # 먼저 기존 데이터 삭제 (데이터가 있는 3개 기업만)
+        companies_to_update = ["00126380", "00164742", "00356370"]  # 삼성전자, LG에너지솔루션, KB금융
+
+        print("   🗑️  기존 데이터 삭제 중...")
+        for corp_code in companies_to_update:
+            try:
+                supabase.table("cash_flows").delete().eq('corp_code', corp_code).execute()
+            except Exception as e:
+                print(f"   ⚠️  {corp_code} 기존 데이터 삭제 실패 (데이터 없을 수 있음): {e}")
+
         cursor.execute("""
             SELECT corp_code, year, report_type, operating_cash_flow,
                    investing_cash_flow, financing_cash_flow, net_cash_flow
@@ -282,9 +314,10 @@ def migrate_cash_flows(supabase: Client):
         batch_size = 100
         total = len(data)
 
+        print("   📤 새 데이터 업로드 중...")
         for i in range(0, total, batch_size):
             batch = data[i:i+batch_size]
-            supabase.table("cash_flows").upsert(batch).execute()
+            supabase.table("cash_flows").insert(batch).execute()
             print(f"   진행: {min(i+batch_size, total)}/{total}")
 
         print(f"   ✅ {total}개 현금흐름표 레코드 마이그레이션 완료")

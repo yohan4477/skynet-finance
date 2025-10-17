@@ -410,22 +410,35 @@
 				width: 100%;
 			}
 
-			/* T-Account 모바일 */
+			/* T-Account 모바일 - 좌우 보기 유지 */
 			.t-account-container {
-				grid-template-columns: 1fr;
-				padding: 20px;
-			}
-
-			.t-divider {
-				display: none;
+				grid-template-columns: 1fr 2px 1fr;
+				padding: 15px;
+				overflow-x: auto;
+				min-width: 650px;
 			}
 
 			.t-group-wrapper {
-				grid-template-columns: 1fr;
+				grid-template-columns: 90px 1fr;
+				gap: 8px;
 			}
 
-			.t-column {
-				margin-bottom: 20px;
+			.t-title {
+				font-size: 16px;
+				padding: 8px;
+			}
+
+			.t-label {
+				font-size: 11px;
+			}
+
+			.t-amount {
+				font-size: 12px;
+			}
+
+			.t-group-label {
+				font-size: 11px;
+				padding: 8px 10px;
 			}
 		}
 
