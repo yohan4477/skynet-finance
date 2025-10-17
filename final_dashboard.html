@@ -6,6 +6,7 @@
 	<title>재무제표 분석 대시보드</title>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 	<style>
 		* { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -174,315 +175,10 @@
 			border-radius: 15px;
 		}
 
-		/* T-Account 스타일 */
-		.t-account-container {
-			display: grid;
-			grid-template-columns: 1fr 2px 1fr;
-			gap: 0;
-			min-height: 500px;
-			background: white;
-			border-radius: 15px;
-			padding: 30px;
-			box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-		}
-
-		.t-column {
-			display: flex;
-			flex-direction: column;
-			gap: 2px;
-		}
-
-		.t-divider {
-			background: #2c3e50;
-			width: 3px;
-		}
-
-		.t-title {
+		.loading {
 			text-align: center;
-			font-size: 20px;
-			font-weight: bold;
-			color: #2c3e50;
-			margin-bottom: 20px;
-			padding: 10px;
-			background: #ecf0f1;
-			border-radius: 10px;
-		}
-
-		.t-item {
-			position: relative;
-			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-			border-radius: 8px;
-			padding: 8px 12px;
-			color: white;
-			cursor: pointer;
-			transition: all 0.3s;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			overflow: hidden;
-		}
-
-		.t-item:hover {
-			transform: scale(1.02);
-			box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-		}
-
-		.t-item.expense { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); }
-		.t-item.profit { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); }
-		.t-item.revenue { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); }
-
-		.t-label {
-			font-size: 13px;
-			font-weight: bold;
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			flex: 1;
-			margin-right: 10px;
-		}
-
-		.t-amount {
-			font-size: 14px;
-			font-weight: bold;
-			white-space: nowrap;
-			text-align: right;
-		}
-
-		.t-group-wrapper {
-			display: grid;
-			grid-template-columns: 120px 1fr;
-			gap: 10px;
-			margin-bottom: 8px;
-			align-items: center;
-		}
-
-		.t-group-label {
-			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-			padding: 10px 15px;
-			border-radius: 8px;
-			font-size: 13px;
-			font-weight: bold;
-			color: white;
-			text-align: center;
-			box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-			height: 100%;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			gap: 3px;
-			transition: all 0.3s;
-		}
-
-		.t-group-label:hover {
-			transform: scale(1.02);
-			box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-		}
-
-		.t-group-total {
-			font-size: 14px;
-			color: white;
-			font-weight: bold;
-		}
-
-		.t-group {
-			border: 2px dashed rgba(108, 122, 137, 0.5);
-			border-radius: 12px;
-			padding: 8px;
-			position: relative;
-		}
-
-		.t-group-content {
-			display: flex;
-			flex-direction: column;
-			gap: 2px;
-		}
-
-		.t-caption {
-			display: none;
-			position: absolute;
-			bottom: 100%;
-			left: 50%;
-			transform: translateX(-50%);
-			background: rgba(0,0,0,0.9);
-			color: white;
-			padding: 12px 15px;
-			border-radius: 8px;
-			font-size: 12px;
-			white-space: nowrap;
-			z-index: 10;
-			margin-bottom: 10px;
-		}
-
-		.t-item:hover .t-caption {
-			display: block;
-		}
-
-		/* 재무상태표 스타일 */
-		.bs-container {
-			display: grid;
-			grid-template-columns: 1fr 3px 1fr;
-			gap: 0;
-			min-height: 600px;
-			background: white;
-			border-radius: 15px;
-			padding: 30px;
-		}
-
-		.bs-column {
-			display: flex;
-			flex-direction: column;
-			gap: 10px;
-		}
-
-		.bs-item {
-			background: #ecf0f1;
-			border-radius: 10px;
-			padding: 15px;
-			cursor: pointer;
-			transition: all 0.3s;
-			position: relative;
-		}
-
-		.bs-item:hover {
-			transform: translateX(5px);
-			box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-		}
-
-		.bs-item.asset { border-left: 5px solid #3498db; }
-		.bs-item.liability { border-left: 5px solid #e74c3c; }
-		.bs-item.equity { border-left: 5px solid #2ecc71; }
-
-		.comparison-grid {
-			display: grid;
-			grid-template-columns: 1fr 1fr;
-			gap: 30px;
-		}
-
-		.company-section {
-			background: #f8f9fa;
-			padding: 20px;
-			border-radius: 15px;
-		}
-
-		.company-header {
-			text-align: center;
-			font-size: 20px;
-			font-weight: bold;
-			margin-bottom: 20px;
-			padding: 15px;
-			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-			color: white;
-			border-radius: 10px;
-		}
-
-		/* 반응형 디자인 */
-		@media (max-width: 768px) {
-			.container {
-				padding: 20px;
-			}
-
-			header {
-				flex-direction: column;
-				gap: 15px;
-				padding-bottom: 15px;
-			}
-
-			.header-center {
-				order: -1; /* 제목을 맨 위로 */
-			}
-
-			.search-wrapper {
-				width: 100%;
-				min-width: unset;
-			}
-
-			header > div:last-child {
-				width: 100%;
-				justify-content: center;
-			}
-
-			h1 {
-				font-size: 24px;
-			}
-
-			.controls {
-				flex-direction: column;
-				gap: 10px;
-			}
-
-			select, .view-btn {
-				width: 100%;
-				font-size: 13px;
-				padding: 10px 15px;
-			}
-
-			.chart-container {
-				height: 300px; /* 모바일에서 차트 높이 줄임 */
-				padding: 15px;
-			}
-
-			.t-account-container, .bs-container {
-				grid-template-columns: 1fr; /* 모바일에서 단일 컬럼 */
-				padding: 15px;
-				min-height: unset;
-			}
-
-			.t-divider {
-				display: none; /* 모바일에서 구분선 숨김 */
-			}
-
-			.t-title {
-				font-size: 18px;
-				margin-bottom: 15px;
-			}
-
-			.t-group-wrapper {
-				grid-template-columns: 1fr; /* 그룹 라벨과 내용도 단일 컬럼 */
-			}
-
-			.t-group-label {
-				height: auto;
-				padding: 8px 10px;
-				font-size: 12px;
-				flex-direction: row;
-				justify-content: space-between;
-			}
-
-			.t-item {
-				padding: 6px 10px;
-			}
-
-			.t-label {
-				font-size: 12px;
-			}
-
-			.t-amount {
-				font-size: 13px;
-			}
-
-			.t-caption {
-				font-size: 10px;
-				padding: 8px 10px;
-			}
-		}
-
-		@media (max-width: 480px) {
-			body {
-				padding: 10px;
-			}
-
-			.container {
-				padding: 15px;
-			}
-
-			h1 {
-				font-size: 20px;
-			}
-
-			.chart-container {
-				height: 250px;
-			}
+			padding: 50px;
+			color: #7f8c8d;
 		}
 	</style>
 </head>
@@ -496,7 +192,7 @@
 			</div>
 			<div class="header-center">
 				<h1>📊 재무제표 분석 대시보드</h1>
-				<p style="color: #7f8c8d;">Financial Statement Analysis Dashboard</p>
+				<p style="color: #7f8c8d;">Financial Statement Analysis Dashboard - Powered by Supabase</p>
 			</div>
 			<div style="min-width: 280px; display: flex; justify-content: flex-end;">
 				<button onclick="goToIndex()" style="padding: 12px 25px; font-size: 14px; font-weight: bold; border: 2px solid #667eea; border-radius: 50px; cursor: pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; transition: all 0.3s;">
@@ -529,14 +225,14 @@
 			</div>
 		</div>
 
-		<!-- 손익계산서 T-Account -->
+		<!-- 손익계산서 -->
 		<div id="incomeView" class="view-content">
-			<div id="incomeStatement"></div>
+			<div id="incomeStatement" class="loading">데이터 로딩 중...</div>
 		</div>
 
 		<!-- 재무상태표 -->
 		<div id="balanceView" class="view-content">
-			<div id="balanceSheet"></div>
+			<div id="balanceSheet" class="loading">데이터 로딩 중...</div>
 		</div>
 
 		<!-- 현금흐름 -->
@@ -546,41 +242,109 @@
 			</div>
 		</div>
 
-		
-
 		<div style="text-align: center; margin-top: 30px; color: #7f8c8d; font-size: 14px;">
-			<p>📡 데이터 출처: 금융감독원 전자공시시스템 (DART)</p>
+			<p>📡 데이터 출처: 금융감독원 전자공시시스템 (DART) via Supabase</p>
 		</div>
 	</div>
 
 	<script>
+		// Supabase 클라이언트 초기화
+		const SUPABASE_URL = 'https://tnkcxygqguxgiwnqsrcd.supabase.co';
+		const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRua2N4eWdxZ3V4Z2l3bnFzcmNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2MzMxNjYsImV4cCI6MjA3NjIwOTE2Nn0.w3U5zwSslhB4yi0Xp0C-dRymLYkuA7P1Tv9VXRMdCI4';
+		const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 		let charts = {};
-		let samsungData = [];
-		let hynixData = [];
-		let samsungQuarterlyData = [];
-		let samsungCashflowData = { annual: [], quarterly: [] };
-
-		// 10대 기업 데이터
-		const companies = [
-			{ name: "삼성전자", code: "00126380", stock: "005930", sector: "전자", file: "00126380_10year_data.json" },
-			{ name: "SK하이닉스", code: "00164779", stock: "000660", sector: "전자", file: "00164779_10year_data.json" },
-			{ name: "LG에너지솔루션", code: "00164742", stock: "373220", sector: "전자", file: "00164742_10year_data.json" },
-			{ name: "삼성바이오로직스", code: "00113399", stock: "207940", sector: "제약", file: "00113399_10year_data.json" },
-			{ name: "현대차", code: "00165890", stock: "005380", sector: "자동차", file: "00165890_10year_data.json" },
-			{ name: "셀트리온", code: "00164529", stock: "068270", sector: "제약", file: "00164529_10year_data.json" },
-			{ name: "기아", code: "00167799", stock: "000270", sector: "자동차", file: "00167799_10year_data.json" },
-			{ name: "POSCO홀딩스", code: "00159645", stock: "005490", sector: "철강", file: "00159645_10year_data.json" },
-			{ name: "KB금융", code: "00356370", stock: "105560", sector: "금융", file: "00356370_10year_data.json" },
-			{ name: "신한지주", code: "00168099", stock: "055550", sector: "금융", file: "00168099_10year_data.json" }
-		];
-
-		let allCompanyData = {};
-		let allCashflowData = {};
-		let allBalanceSheetData = {};
+		let companies = [];
 		let currentCompanyCode = null;
 		let currentCompanyName = null;
+		let allCompanyData = {};
 
 		Chart.register(ChartDataLabels);
+
+		// 기업 목록 로드
+		async function loadCompanies() {
+			const { data, error } = await supabase
+				.from('companies')
+				.select('*')
+				.order('corp_name');
+
+			if (error) {
+				console.error('기업 목록 로드 실패:', error);
+				return [];
+			}
+
+			return data.map(company => ({
+				name: company.corp_name,
+				code: company.corp_code,
+				stock: company.stock_code,
+				sector: company.sector
+			}));
+		}
+
+		// 손익계산서 데이터 로드
+		async function loadIncomeStatements(corpCode) {
+			const { data, error } = await supabase
+				.from('income_statements')
+				.select('*')
+				.eq('corp_code', corpCode)
+				.eq('report_type', '11011') // 연간 보고서
+				.order('year');
+
+			if (error) {
+				console.error('손익계산서 로드 실패:', error);
+				return [];
+			}
+
+			return data.map(d => ({
+				year: d.year,
+				revenue: d.revenue || 0,
+				cost_of_sales: d.cost_of_sales || 0,
+				gross_profit: d.gross_profit || 0,
+				selling_admin_expenses: d.selling_admin_expenses || 0,
+				operating_profit: d.operating_profit || 0,
+				operating_margin: d.operating_margin || 0
+			}));
+		}
+
+		// 재무상태표 데이터 로드
+		async function loadBalanceSheets(corpCode) {
+			const { data, error } = await supabase
+				.from('balance_sheets')
+				.select('*')
+				.eq('corp_code', corpCode)
+				.eq('report_type', '11011')
+				.order('year', { ascending: false })
+				.limit(1);
+
+			if (error) {
+				console.error('재무상태표 로드 실패:', error);
+				return null;
+			}
+
+			return data[0] || null;
+		}
+
+		// 현금흐름 데이터 로드
+		async function loadCashFlows(corpCode) {
+			const { data, error } = await supabase
+				.from('cash_flows')
+				.select('*')
+				.eq('corp_code', corpCode)
+				.eq('report_type', '11011')
+				.order('year');
+
+			if (error) {
+				console.error('현금흐름 로드 실패:', error);
+				return [];
+			}
+
+			return data.map(d => ({
+				period: d.year + '년',
+				operating_cf: d.operating_cash_flow || 0,
+				investing_cf: d.investing_cash_flow || 0,
+				financing_cf: d.financing_cash_flow || 0
+			}));
+		}
 
 		// 검색 기능
 		const searchInput = document.getElementById('companySearch');
@@ -607,7 +371,7 @@
 			}
 
 			searchResults.innerHTML = filtered.map(company => `
-				<div class="search-result-item" onclick="selectCompany('${company.code}', '${company.name}', '${company.file}')">
+				<div class="search-result-item" onclick="selectCompany('${company.code}', '${company.name}')">
 					<div class="company-name">${company.name}</div>
 					<div class="company-info">${company.stock} | ${company.sector}</div>
 				</div>
@@ -624,77 +388,49 @@
 		});
 
 		// 종목 선택
-		async function selectCompany(code, name, file) {
+		async function selectCompany(code, name) {
 			searchResults.classList.remove('show');
 			searchInput.value = name;
-
-			// 현재 선택된 회사 저장
 			currentCompanyCode = code;
 			currentCompanyName = name;
 
 			// 드롭다운도 해당 종목으로 설정
 			const select = document.getElementById('companySelect');
-			const optionValue = JSON.stringify({ code: code, name: name, file: file });
-			select.value = optionValue;
+			select.value = code;
 
-			// 해당 기업 데이터 로드
-			try {
-				const response = await fetch(`/api/company_data?corp_code=${code}`);
-				if (response.ok) {
-					const data = await response.json();
-					allCompanyData[code] = data.filter(d => d.revenue > 0);
+			// 데이터 로드
+			console.log(`${name} 데이터 로딩 중...`);
+			const incomeData = await loadIncomeStatements(code);
+			const balanceData = await loadBalanceSheets(code);
+			const cashflowData = await loadCashFlows(code);
 
-					                    // 현금흐름 데이터도 함께 로드
-					                    const cashflowFile = `/api/cashflow_data?corp_code=${code}`;
-					                    try {
-					                        const cashflowResponse = await fetch(cashflowFile);
-					                        if (cashflowResponse.ok) {
-					                            allCashflowData[code] = await cashflowResponse.json();
-					                        } else {
-					                            allCashflowData[code] = null;
-					                        }
-					                    } catch (e) {
-					                        console.warn(`${name} 현금흐름 데이터 로드 실패:`, e);
-					                        allCashflowData[code] = null;
-					                    }
-					// 재무상태표 데이터 로드
-					const balanceSheetFile = `/api/balance_sheet?corp_code=${code}`;
-					try {
-						const balanceSheetResponse = await fetch(balanceSheetFile);
-						if (balanceSheetResponse.ok) {
-							allBalanceSheetData[code] = await balanceSheetResponse.json();
-						} else {
-							allBalanceSheetData[code] = null; // 데이터가 없는 경우
-						}
-					} catch (e) {
-						console.warn(`${name} 재무상태표 데이터 로드 실패:`, e);
-						allBalanceSheetData[code] = null;
-					}
-
-
-					// 차트 업데이트
-					updateChartsForCompany(code, name);
-				} else {
-					alert(`${name} 데이터를 찾을 수 없습니다.`);
-				}
-			} catch (error) {
-				console.error(`${name} 데이터 로드 실패:`, error);
-				alert(`${name} 데이터 로드에 실패했습니다.`);
+			if (incomeData.length === 0) {
+				alert(`${name} 데이터가 없습니다.`);
+				return;
 			}
+
+			allCompanyData[code] = {
+				income: incomeData,
+				balance: balanceData,
+				cashflow: cashflowData
+			};
+
+			// 차트 업데이트
+			updateChartsForCompany(code, name);
 		}
 
 		function updateChartsForCompany(code, name) {
 			const data = allCompanyData[code];
-			if (!data || data.length === 0) return;
+			if (!data || !data.income || data.income.length === 0) return;
 
 			// 추이 차트 업데이트
 			const ctx = document.getElementById('trendChart').getContext('2d');
 			if (charts.trend) charts.trend.destroy();
 
-			const labels = data.map(d => d.year + '년');
-			const revenues = data.map(d => d.revenue / 1000000000000);
-			const profits = data.map(d => d.operating_profit / 1000000000000);
-			const margins = data.map(d => (d.operating_profit / d.revenue * 100));
+			const labels = data.income.map(d => d.year + '년');
+			const revenues = data.income.map(d => d.revenue / 1000000000000);
+			const profits = data.income.map(d => d.operating_profit / 1000000000000);
+			const margins = data.income.map(d => (d.operating_profit / d.revenue * 100));
 
 			charts.trend = new Chart(ctx, {
 				type: 'bar',
@@ -727,7 +463,6 @@
 						borderWidth: 3,
 						borderDash: [5, 5],
 						pointRadius: 8,
-						pointStyle: 'circle',
 						tension: 0.4,
 						yAxisID: 'y1'
 					}]
@@ -735,59 +470,22 @@
 				options: {
 					responsive: true,
 					maintainAspectRatio: false,
-					interaction: {
-						mode: 'index',
-						intersect: false
-					},
 					plugins: {
 						title: { display: true, text: `${name} 매출 및 영업이익 추이`, font: { size: 18 } },
 						legend: { display: true, position: 'top' },
-						tooltip: {
-							callbacks: {
-								label: function(context) {
-									let label = context.dataset.label || '';
-									if (label) label += ': ';
-									if (context.datasetIndex === 2) {
-										label += context.parsed.y.toFixed(2) + '%';
-									} else {
-										label += context.parsed.y.toFixed(1) + '조원';
-									}
-									return label;
-								}
-							}
-						},
 						datalabels: {
-							anchor: 'end',
-							align: 'top',
-							formatter: function(value, context) {
-								if (context.datasetIndex === 2) {
-									return value.toFixed(1) + '%';
-								} else {
-									return value.toFixed(1) + '조';
-								}
-							},
-							font: {
-								weight: 'bold'
-							}
+							display: false
 						}
 					},
 					scales: {
 						y: {
-							type: 'linear',
-							display: true,
-							position: 'left',
 							beginAtZero: true,
-							title: { display: true, text: '금액 (조원)' },
-							ticks: { callback: v => v.toFixed(0) + '조' }
+							title: { display: true, text: '금액 (조원)' }
 						},
 						y1: {
-							type: 'linear',
-							display: true,
 							position: 'right',
 							beginAtZero: true,
-							max: Math.max(...margins) * 1.2,
 							title: { display: true, text: '영업이익률 (%)' },
-							ticks: { callback: v => v.toFixed(0) + '%' },
 							grid: { drawOnChartArea: false }
 						}
 					}
@@ -795,100 +493,153 @@
 			});
 
 			// 손익계산서 업데이트
-			const latestData = data[data.length - 1];
-			renderSingleIncome(document.getElementById('incomeStatement'), latestData, name);
+			const latestIncome = data.income[data.income.length - 1];
+			renderIncomeStatement(latestIncome, name);
 
 			// 재무상태표 업데이트
-			updateBalanceSheet();
+			renderBalanceSheet(data.balance, name);
 
 			// 현금흐름 차트 업데이트
-			updateCashflowChart();
+			renderCashflowChart(data.cashflow, name);
 		}
 
-		// URL 파라미터 확인
-		function getURLParams() {
-			const params = new URLSearchParams(window.location.search);
-			return {
-				company: params.get('company'),
-				name: params.get('name'),
-				file: params.get('file')
-			};
+		function renderIncomeStatement(data, companyName) {
+			if (!data) return;
+
+			const container = document.getElementById('incomeStatement');
+			container.innerHTML = `
+				<div style="background: #f8f9fa; padding: 30px; border-radius: 15px;">
+					<h2 style="text-align: center; margin-bottom: 20px;">${companyName} 손익계산서 (${data.year}년)</h2>
+					<div style="max-width: 600px; margin: 0 auto;">
+						<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px; border-left: 5px solid #3498db;">
+							<strong>매출:</strong> ${(data.revenue / 1000000000000).toFixed(1)}조원
+						</div>
+						<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px; border-left: 5px solid #e74c3c;">
+							<strong>매출원가:</strong> ${(data.cost_of_sales / 1000000000000).toFixed(1)}조원
+						</div>
+						<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px; border-left: 5px solid #e67e22;">
+							<strong>판매관리비:</strong> ${(data.selling_admin_expenses / 1000000000000).toFixed(1)}조원
+						</div>
+						<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px; border-left: 5px solid #2ecc71;">
+							<strong>영업이익:</strong> ${(data.operating_profit / 1000000000000).toFixed(1)}조원 (${data.operating_margin.toFixed(1)}%)
+						</div>
+					</div>
+				</div>
+			`;
 		}
 
-		// 종목 선택 드롭다운 채우기
+		function renderBalanceSheet(data, companyName) {
+			const container = document.getElementById('balanceSheet');
+
+			if (!data) {
+				container.innerHTML = '<div class="loading">재무상태표 데이터가 없습니다.</div>';
+				return;
+			}
+
+			container.innerHTML = `
+				<div style="background: #f8f9fa; padding: 30px; border-radius: 15px;">
+					<h2 style="text-align: center; margin-bottom: 20px;">${companyName} 재무상태표 (${data.year}년)</h2>
+					<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 900px; margin: 0 auto;">
+						<div>
+							<h3 style="margin-bottom: 15px; color: #2c3e50;">자산</h3>
+							<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px;">
+								<strong>총자산:</strong> ${(data.total_assets / 1000000000000).toFixed(1)}조원
+							</div>
+							<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px;">
+								<strong>유동자산:</strong> ${(data.current_assets / 1000000000000).toFixed(1)}조원
+							</div>
+							<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px;">
+								<strong>비유동자산:</strong> ${(data.non_current_assets / 1000000000000).toFixed(1)}조원
+							</div>
+						</div>
+						<div>
+							<h3 style="margin-bottom: 15px; color: #2c3e50;">부채 + 자본</h3>
+							<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px;">
+								<strong>총부채:</strong> ${(data.total_liabilities / 1000000000000).toFixed(1)}조원
+							</div>
+							<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px;">
+								<strong>유동부채:</strong> ${(data.current_liabilities / 1000000000000).toFixed(1)}조원
+							</div>
+							<div style="padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px;">
+								<strong>자본:</strong> ${(data.total_equity / 1000000000000).toFixed(1)}조원
+							</div>
+						</div>
+					</div>
+				</div>
+			`;
+		}
+
+		function renderCashflowChart(cashflowData, companyName) {
+			const ctx = document.getElementById('cashflowChart').getContext('2d');
+			if (charts.cashflow) charts.cashflow.destroy();
+
+			if (!cashflowData || cashflowData.length === 0) {
+				document.getElementById('cashflowView').querySelector('.chart-container').innerHTML =
+					'<div class="loading">현금흐름 데이터가 없습니다.</div>';
+				return;
+			}
+
+			const labels = cashflowData.map(d => d.period);
+			const operatingCF = cashflowData.map(d => d.operating_cf / 1000000000000);
+			const investingCF = cashflowData.map(d => d.investing_cf / 1000000000000);
+			const financingCF = cashflowData.map(d => d.financing_cf / 1000000000000);
+
+			charts.cashflow = new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: labels,
+					datasets: [
+						{
+							label: '영업활동',
+							data: operatingCF,
+							backgroundColor: 'rgba(54, 162, 235, 0.7)'
+						},
+						{
+							label: '투자활동',
+							data: investingCF,
+							backgroundColor: 'rgba(255, 99, 132, 0.7)'
+						},
+						{
+							label: '재무활동',
+							data: financingCF,
+							backgroundColor: 'rgba(75, 192, 192, 0.7)'
+						}
+					]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						title: { display: true, text: `${companyName} 현금흐름`, font: { size: 18 } },
+						datalabels: { display: false }
+					},
+					scales: {
+						y: {
+							title: { display: true, text: '금액 (조원)' }
+						}
+					}
+				}
+			});
+		}
+
 		function populateCompanySelect() {
 			const select = document.getElementById('companySelect');
 			companies.forEach(company => {
 				const option = document.createElement('option');
-				option.value = JSON.stringify({ code: company.code, name: company.name, file: company.file });
+				option.value = company.code;
 				option.textContent = `${company.name} (${company.stock})`;
 				select.appendChild(option);
 			});
 		}
 
-		// 드롭다운에서 종목 변경
 		function changeCompany() {
 			const select = document.getElementById('companySelect');
-			const selectedValue = select.value;
+			const selectedCode = select.value;
+			if (!selectedCode) return;
 
-			if (!selectedValue) return;
-
-			const companyData = JSON.parse(selectedValue);
-			selectCompany(companyData.code, companyData.name, companyData.file);
-		}
-
-		// 데이터 로드
-		async function loadData() {
-			try {
-				// 종목 선택 드롭다운 채우기
-				populateCompanySelect();
-
-				// URL에서 파라미터 확인
-				const urlParams = getURLParams();
-
-				if (urlParams.company && urlParams.name && urlParams.file) {
-					// 특정 기업으로 직접 접근한 경우
-					searchInput.value = urlParams.name;
-					await selectCompany(urlParams.company, urlParams.name, urlParams.file);
-
-					// 드롭다운도 해당 종목으로 설정
-					const select = document.getElementById('companySelect');
-					const optionValue = JSON.stringify({ code: urlParams.company, name: urlParams.name, file: urlParams.file });
-					select.value = optionValue;
-				} else {
-					                    					// 기본 삼성전자 데이터 로드
-					                    					const [response1, response2, response3, response4, response5] = await Promise.all([
-					                    						fetch('/api/company_data?corp_code=00126380'),
-					                    						fetch('/api/company_data?corp_code=00164779').catch(e => console.warn('SK하이닉스 데이터 로드 실패:', e)),
-					                    						fetch('/api/quarterly_data?corp_code=00126380').catch(e => console.warn('삼성 분기 데이터 로드 실패:', e)),
-					                    						fetch('/api/cashflow_data?corp_code=00126380').catch(e => console.warn('삼성 현금흐름 데이터 로드 실패:', e)),
-					                    						fetch('/api/balance_sheet?corp_code=00126380').catch(e => console.warn('삼성 재무상태표 데이터 로드 실패:', e))
-					                    					]);
-					                    
-					                    					samsungData = (await response1.json()).filter(d => d.revenue > 0);
-					                    					if (response2 && response2.ok) {
-					                    						hynixData = (await response2.json()).filter(d => d.revenue > 0);
-					                    					}
-					                    					                    // if (response3 && response3.ok) {
-					                    					                    //  samsungQuarterlyData = (await response3.json()).filter(d => d.revenue > 0);
-					                    					                    // }
-					                    					                    if (response4 && response4.ok) {
-					                    					                        samsungCashflowData = await response4.json();
-					                    					                    }
-					                    					                    if (response5 && response5.ok) {
-					                    					                        allBalanceSheetData["00126380"] = await response5.json();
-					                    					                    }
-					                    					
-					                    					                    // 분기 데이터는 별도로 로드 (현재는 삼성전자만)
-					                    					                    const quarterlyResponse = await fetch('/api/quarterly_data?corp_code=00126380').catch(e => console.warn('삼성 분기 데이터 로드 실패:', e));
-					                    					                    if (quarterlyResponse && quarterlyResponse.ok) {
-					                    					                        samsungQuarterlyData = (await quarterlyResponse.json()).filter(d => d.revenue > 0);
-					                    					                    }
-					                    					
-					                    					                    updateAll();
-				}
-			} catch (error) {
-				console.error('데이터 로드 실패:', error);
+			const company = companies.find(c => c.code === selectedCode);
+			if (company) {
+				selectCompany(company.code, company.name);
 			}
 		}
 
@@ -899,454 +650,26 @@
 			document.getElementById(view + 'View').classList.add('active');
 		}
 
-		function updateAll() {
-			// 초기 로드 시 삼성전자 데이터로 차트 업데이트
-			updateChartsForCompany("00126380", "삼성전자");
-		}
-
-		// 2. 손익계산서 T-Account (비례 크기)
-		function updateIncomeStatement() {
-			// 데이터가 있는 경우에만 표시
-			if (samsungData.length > 0) {
-				const container = document.getElementById('incomeStatement');
-				renderSingleIncome(container, samsungData[samsungData.length - 1], '삼성전자');
-			}
-		}
-
-		function renderSingleIncome(container, data, companyName) {
-			const total = data.revenue;
-			const sellingAdminExpenses = data.selling_admin_expenses || 0;
-
-			// 매출원가 세부 구성 (추정 비율)
-			const materialCost = data.cost_of_sales * 0.60; // 재료비 60%
-			const laborCost = data.cost_of_sales * 0.25; // 노무비 25%
-			const overheadCost = data.cost_of_sales * 0.15; // 제조경비 15%
-
-			// 판관비 세부 구성 (추정 비율)
-			const rdExpense = sellingAdminExpenses * 0.40; // 연구개발비 40%
-			const marketingExpense = sellingAdminExpenses * 0.25; // 광고선전비 25%
-			const personnelExpense = sellingAdminExpenses * 0.35; // 급여/복리후생 35%
-
-			const materialHeight = (materialCost / total) * 500;
-			const laborHeight = (laborCost / total) * 500;
-			const overheadHeight = (overheadCost / total) * 500;
-
-			const rdHeight = (rdExpense / total) * 500;
-			const marketingHeight = (marketingExpense / total) * 500;
-			const personnelHeight = (personnelExpense / total) * 500;
-
-			const profitHeight = (data.operating_profit / total) * 500;
-			const revenueHeight = 500;
-
-			container.innerHTML = `
-				<div class="t-account-container">
-					<div class="t-column">
-						<div class="t-title">비용 + 영업이익</div>
-
-						<!-- 매출원가 그룹 -->
-						<div class="t-group-wrapper">
-							<div class="t-group-label">
-								<div>💰 매출원가</div>
-								<div class="t-group-total">${(data.cost_of_sales / 1000000000000).toFixed(1)}조원</div>
-							</div>
-							<div class="t-group">
-								<div class="t-group-content">
-									<div class="t-item expense" style="height: ${materialHeight}px; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
-										<div class="t-label">재료비</div>
-										<div class="t-amount">${(materialCost / 1000000000000).toFixed(1)}조</div>
-										<div class="t-caption">원재료, 부재료, 소모품 등 직접 투입 재료비용</div>
-									</div>
-									<div class="t-item expense" style="height: ${laborHeight}px; background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);">
-										<div class="t-label">노무비</div>
-										<div class="t-amount">${(laborCost / 1000000000000).toFixed(1)}조</div>
-										<div class="t-caption">생산직 근로자 급여, 상여금, 퇴직급여 등</div>
-									</div>
-									<div class="t-item expense" style="height: ${overheadHeight}px; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
-										<div class="t-label">제조경비</div>
-										<div class="t-amount">${(overheadCost / 1000000000000).toFixed(1)}조</div>
-										<div class="t-caption">감가상각비, 수선비, 전력비, 기타 제조 관련 경비</div>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<!-- 판매관리비 그룹 -->
-						<div class="t-group-wrapper">
-							<div class="t-group-label">
-								<div>📊 판매관리비</div>
-								<div class="t-group-total">${(sellingAdminExpenses / 1000000000000).toFixed(1)}조원</div>
-							</div>
-							<div class="t-group">
-								<div class="t-group-content">
-									<div class="t-item expense" style="height: ${rdHeight}px; background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
-										<div class="t-label">연구개발비</div>
-										<div class="t-amount">${(rdExpense / 1000000000000).toFixed(1)}조</div>
-										<div class="t-caption">신제품 연구, 기술 개발, 연구소 운영비 등</div>
-									</div>
-									<div class="t-item expense" style="height: ${marketingHeight}px; background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);">
-										<div class="t-label">광고선전비</div>
-										<div class="t-amount">${(marketingExpense / 1000000000000).toFixed(1)}조</div>
-										<div class="t-caption">광고, 마케팅, 판촉, 브랜딩 활동 비용</div>
-									</div>
-									<div class="t-item expense" style="height: ${personnelHeight}px; background: linear-gradient(135deg, #7f8c8d 0%, #6c7a89 100%);">
-										<div class="t-label">인건비</div>
-										<div class="t-amount">${(personnelExpense / 1000000000000).toFixed(1)}조</div>
-										<div class="t-caption">사무직/영업직 급여, 복리후생비, 교육훈련비 등</div>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<!-- 영업이익 -->
-						<div class="t-item profit" style="height: ${profitHeight}px;">
-							<div class="t-label">💚 영업이익</div>
-							<div class="t-amount">${(data.operating_profit / 1000000000000).toFixed(1)}조</div>
-							<div class="t-caption">매출총이익에서 판매관리비를 뺀 본업의 수익성 지표</div>
-						</div>
-					</div>
-					<div class="t-divider"></div>
-					<div class="t-column">
-						<div class="t-title">매출</div>
-						<div class="t-item revenue" style="height: ${revenueHeight}px;">
-							<div class="t-label">💙 영업수익</div>
-							<div class="t-amount">${(data.revenue / 1000000000000).toFixed(1)}조</div>
-							<div class="t-caption">제품 및 서비스 판매로 얻은 총 수익 (${data.year}년)</div>
-						</div>
-					</div>
-				</div>
-			`;
-		}
-
-		        // 3. 재무상태표 (비례 크기) - 세부 구성요소로 세분화
-				function updateBalanceSheet() {
-					const container = document.getElementById('balanceSheet');
-					container.innerHTML = ''; // Clear previous content
-		
-					let balanceSheetData = null;
-					let companyName = '선택된 회사';
-		
-					if (currentCompanyCode && allBalanceSheetData[currentCompanyCode]) {
-						balanceSheetData = allBalanceSheetData[currentCompanyCode];
-						companyName = currentCompanyName;
-					} else if (allBalanceSheetData["00126380"]) { // Fallback to Samsung if no company selected or data missing
-						balanceSheetData = allBalanceSheetData["00126380"];
-						companyName = "삼성전자";
-					}
-		
-					if (!balanceSheetData || balanceSheetData.assets.total === 0) {
-						container.innerHTML = `<p style="text-align: center; padding: 50px; color: #7f8c8d;">${companyName} 재무상태표 데이터가 없습니다.</p>`;
-						return;
-					}
-		
-					const total = balanceSheetData.assets.total;
-		
-					const currentAssets = balanceSheetData.assets.current["유동자산"] ? balanceSheetData.assets.current["유동자산"].amount : 0;
-					const nonCurrentAssets = balanceSheetData.assets.non_current["비유동자산"] ? balanceSheetData.assets.non_current["비유동자산"].amount : 0;
-					const currentLiab = balanceSheetData.liabilities.current["유동부채"] ? balanceSheetData.liabilities.current["유동부채"].amount : 0;
-					const nonCurrentLiab = balanceSheetData.liabilities.non_current["비유동부채"] ? balanceSheetData.liabilities.non_current["비유동부채"].amount : 0;
-					const equity = balanceSheetData.equity.total;
-		
-					// 유동자산 세부 (실제 데이터 우선, 없으면 추정 비율)
-					const cash = balanceSheetData.assets.current["현금및현금성자산"] ? balanceSheetData.assets.current["현금및현금성자산"].amount : currentAssets * 0.30;
-					const receivables = balanceSheetData.assets.current["매출채권"] ? balanceSheetData.assets.current["매출채권"].amount : currentAssets * 0.35;
-					const inventory = balanceSheetData.assets.current["재고자산"] ? balanceSheetData.assets.current["재고자산"].amount : currentAssets * 0.25;
-					const otherCA = currentAssets - cash - receivables - inventory;
-		
-					// 비유동자산 세부 (실제 데이터 우선, 없으면 추정 비율)
-					const ppe = balanceSheetData.assets.non_current["유형자산"] ? balanceSheetData.assets.non_current["유형자산"].amount : nonCurrentAssets * 0.50;
-					const intangible = balanceSheetData.assets.non_current["무형자산"] ? balanceSheetData.assets.non_current["무형자산"].amount : nonCurrentAssets * 0.20;
-					const investments = nonCurrentAssets - ppe - intangible;
-		
-					// 부채 및 자본 세부 (실제 데이터 우선, 없으면 추정 비율)
-					const payables = balanceSheetData.liabilities.current["매입채무"] ? balanceSheetData.liabilities.current["매입채무"].amount : currentLiab * 0.40;
-					const shortDebt = balanceSheetData.liabilities.current["단기차입금"] ? balanceSheetData.liabilities.current["단기차입금"].amount : currentLiab * 0.30;
-					const otherCL = currentLiab - payables - shortDebt;
-		
-					const longDebt = balanceSheetData.liabilities.non_current["장기차입금"] ? balanceSheetData.liabilities.non_current["장기차입금"].amount : nonCurrentLiab * 0.60;
-					const otherNCL = nonCurrentLiab - longDebt;
-		
-					const paidInCapital = balanceSheetData.equity.items["자본금"] ? balanceSheetData.equity.items["자본금"].amount : equity * 0.10;
-					const retainedEarnings = balanceSheetData.equity.items["이익잉여금"] ? balanceSheetData.equity.items["이익잉여금"].amount : equity * 0.85;
-					const otherEquity = equity - paidInCapital - retainedEarnings;
-		
-					const cashHeight = (cash / total) * 500;
-					const receivablesHeight = (receivables / total) * 500;
-					const inventoryHeight = (inventory / total) * 500;
-					const otherCAHeight = (otherCA / total) * 500;
-		
-					const ppeHeight = (ppe / total) * 500;
-					const intangibleHeight = (intangible / total) * 500;
-					const investmentsHeight = (investments / total) * 500;
-		
-					const payablesHeight = (payables / total) * 500;
-					const shortDebtHeight = (shortDebt / total) * 500;
-					const otherCLHeight = (otherCL / total) * 500;
-		
-					const longDebtHeight = (longDebt / total) * 500;
-					const otherNCLHeight = (otherNCL / total) * 500;
-		
-					const paidInHeight = (paidInCapital / total) * 500;
-					const retainedHeight = (retainedEarnings / total) * 500;
-					const otherEqHeight = (otherEquity / total) * 500;
-		
-					container.innerHTML = `
-						<div class="t-account-container">
-							<div class="t-column">
-								<div class="t-title">자산 (Assets)</div>
-		
-								<!-- 유동자산 그룹 -->
-								<div class="t-group-wrapper">
-									<div class="t-group-label">
-										<div>💵 유동자산</div>
-										<div class="t-group-total">${(currentAssets / 1000000000000).toFixed(1)}조원</div>
-									</div>
-									<div class="t-group">
-										<div class="t-group-content">
-											<div class="t-item" style="height: ${cashHeight}px; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);">
-												<div class="t-label">현금및현금성자산</div>
-												<div class="t-amount">${(cash / 1000000000000).toFixed(1)}조</div>
-												<div class="t-caption">즉시 사용 가능한 현금, 당좌예금, 보통예금 등</div>
-											</div>
-											<div class="t-item" style="height: ${receivablesHeight}px; background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);">
-												<div class="t-label">매출채권</div>
-												<div class="t-amount">${(receivables / 1000000000000).toFixed(1)}조</div>
-												<div class="t-caption">제품 판매 대금 미수금</div>
-											</div>
-											<div class="t-item" style="height: ${inventoryHeight}px; background: linear-gradient(135deg, #85c1e9 0%, #5dade2 100%);">
-												<div class="t-label">재고자산</div>
-												<div class="t-amount">${(inventory / 1000000000000).toFixed(1)}조</div>
-												<div class="t-caption">제품, 반제품, 원재료</div>
-											</div>
-											<div class="t-item" style="height: ${otherCAHeight}px; background: linear-gradient(135deg, #aed6f1 0%, #85c1e9 100%);">
-												<div class="t-label">기타유동자산</div>
-												<div class="t-amount">${(otherCA / 1000000000000).toFixed(1)}조</div>
-												<div class="t-caption">선급비용, 미수수익 등</div>
-											</div>
-										</div>
-									</div>
-								</div>
-		
-								<!-- 비유동자산 그룹 -->
-								<div class="t-group-wrapper">
-									<div class="t-group-label">
-										<div>🏢 비유동자산</div>
-										<div class="t-group-total">${(nonCurrentAssets / 1000000000000).toFixed(1)}조원</div>
-									</div>
-									<div class="t-group">
-										<div class="t-group-content">
-											<div class="t-item" style="height: ${ppeHeight}px; background: linear-gradient(135deg, #2980b9 0%, #1f6391 100%);">
-												<div class="t-label">유형자산</div>
-												<div class="t-amount">${(ppe / 1000000000000).toFixed(1)}조</div>
-												<div class="t-caption">토지, 건물, 기계장치, 차량</div>
-											</div>
-											<div class="t-item" style="height: ${intangibleHeight}px; background: linear-gradient(135deg, #21618c 0%, #1a5276 100%);">
-												<div class="t-label">무형자산</div>
-												<div class="t-amount">${(intangible / 1000000000000).toFixed(1)}조</div>
-												<div class="t-caption">특허권, 상표권, 영업권</div>
-											</div>
-											<div class="t-item" style="height: ${investmentsHeight}px; background: linear-gradient(135deg, #1a5276 0%, #154360 100%);">
-												<div class="t-label">투자자산</div>
-												<div class="t-amount">${(investments / 1000000000000).toFixed(1)}조</div>
-												<div class="t-caption">장기금융상품, 투자부동산</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="t-divider"></div>
-							<div class="t-column">
-								<div class="t-title">부채 + 자본</div>
-		
-								<!-- 유동부채 그룹 -->
-								<div class="t-group-wrapper">
-									<div class="t-group-label">
-										<div>📛 유동부채</div>
-										<div class="t-group-total">${(currentLiab / 1000000000000).toFixed(1)}조원</div>
-									</div>
-									<div class="t-group">
-										<div class="t-group-content">
-											<div class="t-item" style="height: ${payablesHeight}px; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
-												<div class="t-label">매입채무</div>
-												<div class="t-amount">${(payables / 1000000000000).toFixed(1)}조</div>
-												<div class="t-caption">원재료 구매 대금 미지급금</div>
-											</div>
-											<div class="t-item" style="height: ${shortDebtHeight}px; background: linear-gradient(135deg, #ec7063 0%, #e74c3c 100%);">
-												<div class="t-label">단기차입금</div>
-												<div class="t-amount">${(shortDebt / 1000000000000).toFixed(1)}조</div>
-												<div class="t-caption">1년 내 상환 차입금</div>
-											</div>
-											<div class="t-item" style="height: ${otherCLHeight}px; background: linear-gradient(135deg, #f1948a 0%, #ec7063 100%);">
-												<div class="t-label">기타유동부채</div>
-												<div class="t-amount">${(otherCL / 1000000000000).toFixed(1)}조</div>
-												<div class="t-caption">미지급비용, 선수금 등</div>
-											</div>
-										</div>
-									</div>
-								</div>
-		
-								<!-- 비유동부채 그룹 -->
-								<div class="t-group-wrapper">
-									<div class="t-group-label">
-										<div>📕 비유동부채</div>
-										<div class="t-group-total">${(nonCurrentLiab / 1000000000000).toFixed(1)}조원</div>
-									</div>
-									<div class="t-group">
-										<div class="t-group-content">
-											<div class="t-item" style="height: ${longDebtHeight}px; background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);">
-												<div class="t-label">장기차입금</div>
-												<div class="t-amount">${(longDebt / 1000000000000).toFixed(1)}조</div>
-												<div class="t-caption">1년 이상 장기 차입금</div>
-											</div>
-											<div class="t-item" style="height: ${otherNCLHeight}px; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
-												<div class="t-label">기타비유동부채</div>
-												<div class="t-amount">${(otherNCL / 1000000000000).toFixed(1)}조</div>
-												<div class="t-caption">퇴직급여충당부채 등</div>
-											</div>
-										</div>
-									</div>
-								</div>
-		
-								<!-- 자본 그룹 -->
-								<div class="t-group-wrapper">
-									<div class="t-group-label">
-										<div>💚 자본</div>
-										<div class="t-group-total">${(equity / 1000000000000).toFixed(1)}조원</div>
-									</div>
-									<div class="t-group">
-										<div class="t-group-content">
-											<div class="t-item" style="height: ${paidInHeight}px; background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);">
-												<div class="t-label">자본금+자본잉여금</div>
-												<div class="t-amount">${(paidInCapital / 1000000000000).toFixed(1)}조</div>
-												<div class="t-caption">주주 출자금, 주식발행초과금</div>
-											</div>
-											<div class="t-item" style="height: ${retainedHeight}px; background: linear-gradient(135deg, #58d68d 0%, #2ecc71 100%);">
-												<div class="t-label">이익잉여금</div>
-												<div class="t-amount">${(retainedEarnings / 1000000000000).toFixed(1)}조</div>
-												<div class="t-caption">누적 순이익 미배당액</div>
-											</div>
-											<div class="t-item" style="height: ${otherEqHeight}px; background: linear-gradient(135deg, #82e0aa 0%, #58d68d 100%);">
-												<div class="t-label">기타자본</div>
-												<div class="t-amount">${(otherEquity / 1000000000000).toFixed(1)}조</div>
-												<div class="t-caption">기타포괄손익누계액 등</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					`;
-				}
-		function updateCashflowChart() {
-			const ctx = document.getElementById('cashflowChart').getContext('2d');
-			if (charts.cashflow) charts.cashflow.destroy();
-
-			// 현재 선택된 회사의 현금흐름 데이터 확인
-			let cashflowData = null;
-			let companyName = '삼성전자';
-
-			if (currentCompanyCode && allCashflowData[currentCompanyCode]) {
-				cashflowData = allCashflowData[currentCompanyCode];
-				companyName = currentCompanyName;
-			} else if (samsungCashflowData && samsungCashflowData.annual) {
-				cashflowData = samsungCashflowData;
-			}
-
-			// 데이터가 있는 경우에만 표시
-			if (cashflowData && cashflowData.annual && cashflowData.annual.length > 0) {
-				// 0이 아닌 데이터만 필터링
-				const data = cashflowData.annual.filter(d =>
-					d.operating_cf !== 0 || d.investing_cf !== 0 || d.financing_cf !== 0
-				);
-
-				if (data.length === 0) {
-					// 유효한 데이터가 없으면 안내 메시지
-					const container = document.getElementById('cashflowView');
-					const chartContainer = container.querySelector('.chart-container');
-					chartContainer.innerHTML = `<p style="text-align: center; padding: 50px; color: #7f8c8d;">현금흐름 데이터가 없습니다.</p>`;
-					return;
-				}
-
-				const labels = data.map(d => d.period);
-				const operatingCF = data.map(d => d.operating_cf / 1000000000000);
-				const investingCF = data.map(d => d.investing_cf / 1000000000000);
-				const financingCF = data.map(d => d.financing_cf / 1000000000000);
-
-				charts.cashflow = new Chart(ctx, {
-					type: 'bar',
-					data: {
-						labels: labels,
-						datasets: [
-							{
-								label: '영업활동 현금흐름',
-								data: operatingCF,
-								backgroundColor: 'rgba(54, 162, 235, 0.7)',
-							},
-							{
-								label: '투자활동 현금흐름',
-								data: investingCF,
-								backgroundColor: 'rgba(255, 99, 132, 0.7)',
-							},
-							{
-								label: '재무활동 현금흐름',
-								data: financingCF,
-								backgroundColor: 'rgba(75, 192, 192, 0.7)',
-							}
-						]
-					},
-					options: {
-						responsive: true,
-						maintainAspectRatio: false,
-						plugins: {
-							title: { display: true, text: `${companyName} 현금흐름 (연간)`, font: { size: 18 } },
-							legend: { display: true, position: 'top' },
-							tooltip: {
-								callbacks: {
-									label: function(context) {
-										let label = context.dataset.label || '';
-										if (label) label += ': ';
-										label += context.parsed.y.toFixed(1) + '조원';
-										return label;
-									}
-								}
-							},
-							datalabels: {
-								display: false
-							},
-							annotation: {
-								annotations: {
-									line1: {
-										type: 'line',
-										yMin: 0,
-										yMax: 0,
-										borderColor: 'rgb(0, 0, 0)',
-										borderWidth: 2,
-									}
-								}
-							}
-						},
-						scales: {
-							x: {
-								stacked: true,
-							},
-							y: {
-								stacked: true,
-								title: { display: true, text: '금액 (조원)' },
-								ticks: { callback: v => v.toFixed(0) + '조' },
-							}
-						}
-					}
-				});
-			} else {
-				// 데이터가 없으면 안내 메시지 표시
-				const container = document.getElementById('cashflowView');
-				const chartContainer = container.querySelector('.chart-container');
-				chartContainer.innerHTML = `<p style="text-align: center; padding: 50px; color: #7f8c8d;">현금흐름 데이터가 없습니다.</p>`;
-			}
-		}
-
-		// 종목 리스트로 이동
 		function goToIndex() {
 			window.location.href = 'index.html';
+		}
+
+		// 데이터 로드
+		async function loadData() {
+			try {
+				// 기업 목록 로드
+				companies = await loadCompanies();
+				populateCompanySelect();
+
+				// 기본 삼성전자 데이터 로드
+				const samsung = companies.find(c => c.code === '00126380');
+				if (samsung) {
+					searchInput.value = samsung.name;
+					await selectCompany(samsung.code, samsung.name);
+				}
+			} catch (error) {
+				console.error('데이터 로드 실패:', error);
+			}
 		}
 
 		window.addEventListener('load', loadData);
