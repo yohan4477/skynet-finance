@@ -375,6 +375,115 @@
 			color: white;
 			border-radius: 10px;
 		}
+
+		/* 반응형 디자인 */
+		@media (max-width: 768px) {
+			.container {
+				padding: 20px;
+			}
+
+			header {
+				flex-direction: column;
+				gap: 15px;
+				padding-bottom: 15px;
+			}
+
+			.header-center {
+				order: -1; /* 제목을 맨 위로 */
+			}
+
+			.search-wrapper {
+				width: 100%;
+				min-width: unset;
+			}
+
+			header > div:last-child {
+				width: 100%;
+				justify-content: center;
+			}
+
+			h1 {
+				font-size: 24px;
+			}
+
+			.controls {
+				flex-direction: column;
+				gap: 10px;
+			}
+
+			select, .view-btn {
+				width: 100%;
+				font-size: 13px;
+				padding: 10px 15px;
+			}
+
+			.chart-container {
+				height: 300px; /* 모바일에서 차트 높이 줄임 */
+				padding: 15px;
+			}
+
+			.t-account-container, .bs-container {
+				grid-template-columns: 1fr; /* 모바일에서 단일 컬럼 */
+				padding: 15px;
+				min-height: unset;
+			}
+
+			.t-divider {
+				display: none; /* 모바일에서 구분선 숨김 */
+			}
+
+			.t-title {
+				font-size: 18px;
+				margin-bottom: 15px;
+			}
+
+			.t-group-wrapper {
+				grid-template-columns: 1fr; /* 그룹 라벨과 내용도 단일 컬럼 */
+			}
+
+			.t-group-label {
+				height: auto;
+				padding: 8px 10px;
+				font-size: 12px;
+				flex-direction: row;
+				justify-content: space-between;
+			}
+
+			.t-item {
+				padding: 6px 10px;
+			}
+
+			.t-label {
+				font-size: 12px;
+			}
+
+			.t-amount {
+				font-size: 13px;
+			}
+
+			.t-caption {
+				font-size: 10px;
+				padding: 8px 10px;
+			}
+		}
+
+		@media (max-width: 480px) {
+			body {
+				padding: 10px;
+			}
+
+			.container {
+				padding: 15px;
+			}
+
+			h1 {
+				font-size: 20px;
+			}
+
+			.chart-container {
+				height: 250px;
+			}
+		}
 	</style>
 </head>
 <body>
@@ -760,15 +869,23 @@
 					                    					if (response2 && response2.ok) {
 					                    						hynixData = (await response2.json()).filter(d => d.revenue > 0);
 					                    					}
-					                    					if (response3 && response3.ok) {
-					                    						samsungQuarterlyData = (await response3.json()).filter(d => d.revenue > 0);
-					                    					}
-					                    					if (response4 && response4.ok) {
-					                    						samsungCashflowData = await response4.json();
-					                    					}
-					                    					if (response5 && response5.ok) {
-					                    						allBalanceSheetData["00126380"] = await response5.json();
-					                    					}					updateAll();
+					                    					                    // if (response3 && response3.ok) {
+					                    					                    //  samsungQuarterlyData = (await response3.json()).filter(d => d.revenue > 0);
+					                    					                    // }
+					                    					                    if (response4 && response4.ok) {
+					                    					                        samsungCashflowData = await response4.json();
+					                    					                    }
+					                    					                    if (response5 && response5.ok) {
+					                    					                        allBalanceSheetData["00126380"] = await response5.json();
+					                    					                    }
+					                    					
+					                    					                    // 분기 데이터는 별도로 로드 (현재는 삼성전자만)
+					                    					                    const quarterlyResponse = await fetch('/api/quarterly_data?corp_code=00126380').catch(e => console.warn('삼성 분기 데이터 로드 실패:', e));
+					                    					                    if (quarterlyResponse && quarterlyResponse.ok) {
+					                    					                        samsungQuarterlyData = (await quarterlyResponse.json()).filter(d => d.revenue > 0);
+					                    					                    }
+					                    					
+					                    					                    updateAll();
 				}
 			} catch (error) {
 				console.error('데이터 로드 실패:', error);
