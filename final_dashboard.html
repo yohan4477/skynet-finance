@@ -311,8 +311,8 @@
 			}
 	
 			.t-item.expense {
-				background: #ffe3e3;
-				border-color: #fabdbd;
+				background: #ffedd5;
+				border-color: #fed7aa;
 			}
 	
 			.t-item.profit {
@@ -412,27 +412,28 @@
 				}
 	
 				.t-title {
-					font-size: 16px;
-				}
-	
-				.t-group-header {
+					font-size: 14px;
 					padding: 10px;
 				}
-	
+
+				.t-group-header {
+					padding: 8px;
+				}
+
 				.t-group-title {
-					font-size: 12px;
+					font-size: 11px;
 				}
-				
+
 				.t-group-total {
-					font-size: 13px;
-				}
-	
-				.t-label {
 					font-size: 12px;
 				}
-	
+
+				.t-label {
+					font-size: 11px;
+				}
+
 				.t-amount {
-					font-size: 13px;
+					font-size: 12px;
 				}
 			}
 	
@@ -475,7 +476,7 @@
 		</div>
 
 		<div class="controls">
-			<button class="view-btn active" onclick="switchView('trend')">📈 추이 분석</button>
+			<button class="view-btn active" onclick="switchView('trend')">📈 매출/영업이익</button>
 			<button class="view-btn" onclick="switchView('income')">📋 손익계산서</button>
 			<button class="view-btn" onclick="switchView('balance')">⚖️ 재무상태표</button>
 			<button class="view-btn" onclick="switchView('cashflow')">💧 현금흐름</button>
@@ -820,7 +821,7 @@
 
 							<!-- LV1: 매출원가 -->
 							<div class="t-group" style="margin-bottom: 16px;">
-								<div class="t-group-header" style="background: #dc3545;">
+								<div class="t-group-header" style="background: #f97316;">
 									<span class="t-group-title">LV1 매출원가</span>
 									<div>
 										<span class="t-group-total">${(costOfSales / 1000000000000).toFixed(1)}조</span>
