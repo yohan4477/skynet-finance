@@ -25,7 +25,7 @@ def create_database():
         )
     ''')
 
-    # 손익계산서 테이블
+    # 손익계산서 테이블 (확장 버전 - 추가 항목 포함)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS income_statements (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,6 +38,16 @@ def create_database():
             selling_admin_expenses REAL,
             operating_profit REAL,
             operating_margin REAL,
+            other_gains REAL DEFAULT 0,
+            other_losses REAL DEFAULT 0,
+            finance_income REAL DEFAULT 0,
+            finance_costs REAL DEFAULT 0,
+            equity_method_income REAL DEFAULT 0,
+            profit_before_tax REAL DEFAULT 0,
+            income_tax_expense REAL DEFAULT 0,
+            net_profit REAL DEFAULT 0,
+            profit_attributable_to_owners REAL DEFAULT 0,
+            non_controlling_interests REAL DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (corp_code) REFERENCES companies(corp_code),
             UNIQUE(corp_code, year, report_type)
@@ -94,20 +104,14 @@ def create_database():
 
 def get_top_10_companies():
     """
-    한국 10대 기업 리스트 반환 (시가총액 기준)
-    Returns list of top 10 Korean companies by market cap
+    실제 추이 분석 데이터가 있는 기업만 반환 (10년 데이터 보유)
+    Returns only companies with 10-year trend data
     """
     return [
         {"corp_code": "00126380", "corp_name": "삼성전자", "stock_code": "005930", "sector": "전자"},
         {"corp_code": "00164779", "corp_name": "SK하이닉스", "stock_code": "000660", "sector": "전자"},
         {"corp_code": "00164742", "corp_name": "LG에너지솔루션", "stock_code": "373220", "sector": "전자"},
-        {"corp_code": "00113399", "corp_name": "삼성바이오로직스", "stock_code": "207940", "sector": "제약"},
-        {"corp_code": "00165890", "corp_name": "현대차", "stock_code": "005380", "sector": "자동차"},
-        {"corp_code": "00164529", "corp_name": "셀트리온", "stock_code": "068270", "sector": "제약"},
-        {"corp_code": "00167799", "corp_name": "기아", "stock_code": "000270", "sector": "자동차"},
-        {"corp_code": "00159645", "corp_name": "POSCO홀딩스", "stock_code": "005490", "sector": "철강"},
-        {"corp_code": "00356370", "corp_name": "KB금융", "stock_code": "105560", "sector": "금융"},
-        {"corp_code": "00168099", "corp_name": "신한지주", "stock_code": "055550", "sector": "금융"}
+        {"corp_code": "00356370", "corp_name": "KB금융", "stock_code": "105560", "sector": "금융"}
     ]
 
 def insert_companies():
